@@ -81,6 +81,14 @@ class Staff(Client):
         super(Staff, self).save(*args, **kwargs)
 
 
+class Contributor(Client):
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self._create_user()
+            self._set_type("contributor")
+        super(Contributor, self).save(*args, **kwargs)
+
+
 # SIGNALS start here
 # Global flag to avoid infinite recursion
 is_in_pre_delete = False
