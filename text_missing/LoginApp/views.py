@@ -14,8 +14,7 @@ from LoginApp.forms import LoginForm, CustomizeAccountForm
 def main_page(request):
     if request.user.is_staff:
         return redirect('admin:index')
-    if request.user.groups.filter(name="contributor").count():
-        return render(request, "LoginApp/main_page.html", {'role': 'contributor'})
+    return render(request, "LoginApp/main_page.html", {'role': request.user.groups.first, "has_permission": True})
 
 def login_page(request):
     new_form = LoginForm()

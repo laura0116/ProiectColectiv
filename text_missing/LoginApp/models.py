@@ -89,6 +89,22 @@ class Contributor(Client):
         super(Contributor, self).save(*args, **kwargs)
 
 
+class Manager(Client):
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self._create_user()
+            self._set_type("manager")
+        super(Manager, self).save(*args, **kwargs)
+
+
+class Reader(Client):
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self._create_user()
+            self._set_type("reader")
+        super(Reader, self).save(*args, **kwargs)
+
+
 # SIGNALS start here
 # Global flag to avoid infinite recursion
 is_in_pre_delete = False
