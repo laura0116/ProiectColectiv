@@ -22,5 +22,6 @@ admin.site.unregister(Group)
 admin.AdminSite.site_title = "Academic Admin"
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^', include('LoginApp.urls'))
+    url(r'^', include('LoginApp.urls')),
+    url(r'^', include('TextMissing.urls'))
 ]

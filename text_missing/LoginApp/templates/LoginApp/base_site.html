@@ -6,4 +6,6 @@
 <h1 id="site-name"><a href={{ main_url }}>{{ site_title }}</a></h1>
 {% endblock %}
 
-{% block nav-global %}{% endblock %}
+{% block nav-global %}
+    <a href="{% url "TextMissing:documents" %}">Documents</a>
+{% endblock %}
