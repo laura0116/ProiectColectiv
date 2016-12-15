@@ -23,9 +23,9 @@ tests/report/
 # User-specific stuff:
 .idea/
 
-
 ## File-based project format:
 *.iws
+*.sqlite3
 
 ## Plugin-specific files:
 
