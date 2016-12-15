@@ -16,6 +16,7 @@ def main_page(request):
         return redirect('admin:index')
     return render(request, "LoginApp/main_page.html", {'role': request.user.groups.first, "has_permission": True})
 
+
 def login_page(request):
     new_form = LoginForm()
     if request.method != 'POST':
