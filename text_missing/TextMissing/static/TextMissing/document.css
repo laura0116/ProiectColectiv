@@ -1,11 +1,11 @@
 .document-container {
-    min-width: 25%;
-    max-width: 50%;
-    font-size: 20px;
+    min-width: 48%;
+    max-width: 96%;
+    font-size: 15px;
     border: 2px gray solid;
     border-radius: 5px;
     overflow: hidden;
-    margin-bottom: 10px;
+    margin: 5px auto;
 }
 
 .metadata-name{
@@ -40,4 +40,13 @@
 
 .metadata-container{
     display: flex;
+}
+
+.delete-button {
+    cursor: pointer;
+    color: white;
+}
+
+.delete-button:hover {
+    color: red;
 }
