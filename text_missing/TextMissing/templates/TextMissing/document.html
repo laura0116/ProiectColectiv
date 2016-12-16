@@ -1,0 +1,18 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href={% static "TextMissing/document.css" %}>
+
+<div class="document-container">
+    <div class="metadata-name">
+        <span>{{ document.document_name }}</span>
+    </div>
+    <div class="metadata-container">
+        <div class="metadata-title">
+            <div>Version</div>
+            <div>Author</div>
+        </div>
+        <div class="metadata-content">
+            <div>{{ document.version }}</div>
+            <div>{{ document.author }}</div>
+        </div>
+    </div>
+</div>

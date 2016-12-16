@@ -4,8 +4,8 @@
 {% block title %}{{ title }}{% endblock %}
 {% block content_title %}<h1>{{ title }}</h1>{% endblock %}
 {% block content %}
-{% for document in documents %}
-    <div>{{ document.document_name }}</div>
+{% for doc in documents %}
+    {% include "TextMissing/document.html" with document=doc %}
 {% endfor %}
 
 {% endblock %}

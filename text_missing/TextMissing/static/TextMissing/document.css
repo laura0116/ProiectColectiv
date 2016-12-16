@@ -1,0 +1,43 @@
+.document-container {
+    min-width: 25%;
+    max-width: 50%;
+    font-size: 20px;
+    border: 2px gray solid;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.metadata-name{
+    background-color: gray;
+    color: white;
+    text-align: center;
+}
+
+.metadata-title{
+    font-weight: 600;
+    background-color: gray;
+    color: white;
+    flex: 1;
+}
+
+.metadata-content{
+    align-content: center;
+    flex: 3;
+}
+
+.metadata-content div, .metadata-title div {
+    text-align: center;
+}
+
+.metadata-title div:not(:first-child) {
+    border-top: 2px solid white;
+}
+
+.metadata-content div:not(:first-child){
+    border-top: 2px solid gray;
+}
+
+.metadata-container{
+    display: flex;
+}
