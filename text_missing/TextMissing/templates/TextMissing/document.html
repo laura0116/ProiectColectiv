@@ -3,16 +3,26 @@
 
 <div class="document-container">
     <div class="metadata-name">
+
+        <a href="{% url "TextMissing:delete_document" document_id=document.id %}">
+            <span class="delete-button glyphicon glyphicon-remove pull-left"></span>
+        </a>
         <span>{{ document.document_name }}</span>
     </div>
     <div class="metadata-container">
         <div class="metadata-title">
             <div>Version</div>
             <div>Author</div>
+            <div>Created on</div>
+            <div>Last Updated</div>
+            <div>Abstract</div>
         </div>
         <div class="metadata-content">
             <div>{{ document.version }}</div>
             <div>{{ document.author }}</div>
+            <div>{{ document.creation_date }}</div>
+            <div>{{ document.last_update }}</div>
+            <div>{{ document.abstract }}</div>
         </div>
     </div>
 </div>

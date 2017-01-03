@@ -19,7 +19,7 @@ from django.contrib.auth.models import User, Group
 
 admin.site.unregister(User)
 admin.site.unregister(Group)
-admin.AdminSite.site_title = "Academic Admin"
+admin.AdminSite.site_title = "Document Admin"
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include('LoginApp.urls')),
