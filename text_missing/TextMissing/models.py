@@ -27,3 +27,4 @@ class Document(models.Model):
     abstract = models.CharField(max_length=100)
     keywords = models.CharField(max_length=100)
     status = models.CharField(max_length=20, choices=StatusChoices.CHOICES)
+    file = models.FileField(upload_to='documents/%Y%m%d', null=True, blank=True)
