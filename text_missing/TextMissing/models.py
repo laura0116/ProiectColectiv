@@ -28,3 +28,7 @@ class Document(models.Model):
     keywords = models.CharField(max_length=100)
     status = models.CharField(max_length=20, choices=StatusChoices.CHOICES)
     file = models.FileField(upload_to='documents/%Y%m%d', null=True, blank=True)
+
+    def get_document_url(self):
+        if self.file:
+            return 'http://localhost:8000/media/' + str(self.file)

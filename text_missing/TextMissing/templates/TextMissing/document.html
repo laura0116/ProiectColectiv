@@ -16,6 +16,7 @@
             <div>Created on</div>
             <div>Last Updated</div>
             <div>Abstract</div>
+            <div>File</div>
         </div>
         <div class="metadata-content">
             <div>{{ document.version }}</div>
@@ -23,6 +24,7 @@
             <div>{{ document.creation_date }}</div>
             <div>{{ document.last_update }}</div>
             <div>{{ document.abstract }}</div>
+            <a href={{ document.get_document_url }}> Link </a>
         </div>
     </div>
 </div>
