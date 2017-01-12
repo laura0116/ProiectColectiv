@@ -1,0 +1,51 @@
+Se poate implementa partial, strict descrierea proceselor de business din documentul initial. Ulterior se mai pot adauga detaliile corespunzatoare din documentele anexate - 
+extra validari si conditii in masura in care e posibil.
+
+1. Tipuri de utilizatori
+Fiecare utilizator (contribuitor/manager/admin - mai putin cititorii) au asignate unul sau mai multe roluri dintre urmatoarele:
+* student - au un departament asignat (clasa separata), iar departamentului ii corespunde un director
+* director de departament - are un departament la care e director
+* cadru didactic - la fel, are un departament asignat
+* angajat pe proiecte - discutabil, poate avea asignat un proiect, iar fiecare proiect va avea un director
+* pensionari conducatori de doctorat - pot avea o scoala doctorala (discutabil daca are rost, cealalta optiune e sa aiba direct o referinta la un director de scoala doctorala)
+* director de scoala doctorala - o referinta la o scoala doctorala (clasa separata la fel ca la departamente) - din nou, discutabil daca are rost
+* personal administrativ - au un sef direct, ales din cei cu rolul de lider administrativ (sau pot exista departamente administrative, fiecare cu liderul ei)
+* lider administrativ
+* decan - trebuie sa fie unic?
+* rector - trebuie sa fie unic?
+* DFC - directia financiar contabila
+* director grant
+* CMCS - la fel ca DFC
+* director proiect
+* imputernicit al rectorului
+
+O varianta de implementare ar fi ca DFC,CMCS,la fel ca scoala doctorala, departamentele, departamentele administrative, proiectele si granturile sa fie entitati de sine statatoare, la care
+se va pune un lider dintre personalul eligibil (nu poate fi un student de exemplu) precum si membrii. Intre aceste entitati nu exista diferente practice, deci va fi o simpla clasa de 
+grup de utilizatori mostenita de mai multe ori (cu anumite restrictii privind persoanele eligibile poate).
+
+2. Fluxul de document
+Fiecare flux de document (si DR si referatul de necesitate) va avea urmatoarele componente:
+* o colectie de documente (din care unul trebuie sa corespunda tipului de flux ales - DR sau referat + alte conditii in functie de flux)
+* un initiator
+* o lista cu user-ii (sau grupurile de useri) care trebuie implicati pasul curent, precum si optiunile pe care le au la dispozitie (in general la primul pas exista optiunea de 
+necesita modificari ce implica si adaugarea de comment-uri, pe langa optiunile universale de aproba/respinge)
+* un timestamp cu data limita pana la care trebuie efectuata o actiune (calculat intern)
+* o lista de comentarii (initial goala, din ce am vazut, doar pentru necesita modificari aceasta lista va fi completata)
+Fluxul e un model de sine statator, care tine cont de stadiul la care a ajuns proiectul, data ultimei schimbari de stare etc.. 
+Vor fi doua subclase de flux (pentru DR si referat) cu logica interna de tranzitii de stare diferita. La display-ul unei zone de lucru pentru
+orice user, se vor afisa toate fluxurile ce il implica la pasul curent pe acest user (precum si fluxurile initiate de user probabil) - e o filtrare dupa field-ul mentionat mai sus.
+La fiecare tranzitie de stare (initiere/aproba/necesita comentarii etc.) fluxul isi va updata starea interna in functie de logica procesului, reconstruind lista de grupuri/utilizatori
+implicati in pasul ce urmeaza (daca urmeaza un nou pas). 
+Daca un flux a ajuns in starea finala (respins sau aprobat) un email e trimis catre initiator, actiunea e logata si fluxul e dezactivat.
+
+Daca un flux ajunge din nou la initiator (prin necesita modificari), acesta va avea posibilitatea sa updateze colectia de documente continute de flux. De asemenea user-ul
+va avea posibilitatea de resend, care retrimite fluxul la utilizatorii din primul pas).
+
+3. Daily task
+La un interval de timp trebuie sa ruleze un task ce verifica toate fluxurile si trimite email-uri pentru fluxurile expirate/pe cale sa expire. De asemenea acest task dezactiveaza fluxurile
+expirate daca este nevoie.
+
+4. Logger
+Va fi necesar un logger, la care sa aiba acces manager-ul/admin-ul, care sa contina toate operatiile efectuate pe sistem.
+
+
