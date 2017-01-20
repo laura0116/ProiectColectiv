@@ -1,0 +1,19 @@
+{% extends "LoginApp/base_site.html" %}
+{% load i18n %}
+{% block content %}
+<div class="container" >
+<form method="get" action="work_zone.html">
+    <button type="submit">Work Zone</button>
+</form>
+    <form method="get" action="initiate_zone.html">
+    <button type="submit">Initiated Tasks Zone</button>
+</form>
+    <form method="get" action="task_zone.html">
+    <button type="submit">Tasks Zone</button>
+</form>
+    <form method="get" action="finished_zone.html">
+    <button type="submit">Finished Tasks Zone</button>
+</form>
+</div>
+
+{% endblock %}

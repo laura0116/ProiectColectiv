@@ -87,4 +87,57 @@ def upload_form(request, document_form_class):
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
 def zones(request):
-    return render(request,'TextMissing/zones.html')
+    return render(request, 'TextMissing/zones.html')
+
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+def work_zone(request):
+    files = Document.objects.all()
+    current_user = Client.objects.filter(user=request.user).first()
+    documents =[]
+    if request.method == 'GET':
+        for file in files:
+            if file.status == 'draft':
+                if current_user.type == 'manager':
+                    documents.append(file)
+                elif file.author == current_user:
+                    documents.append(file)
+        return render(request, "TextMissing/work_zone.html",
+                  {'documents': documents, "has_permission": True})
+
+
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+def initiate_zone(request):
+    files = Document.objects.all()
+    current_user = Client.objects.filter(user=request.user).first()
+    documents =[]
+    if request.method == 'GET':
+        for file in files:
+            if file.status == 'final' or file.status == 'finalRevised':
+               if file.author == current_user:
+                    documents.append(file)
+        return render(request, "TextMissing/initiate_zone.html",
+                  {'documents': documents, "has_permission": True})\
+
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+def task_zone(request):
+    files = Document.objects.all()
+    current_user = Client.objects.filter(user=request.user).first()
+    documents =[]
+    if request.method == 'GET':
+        for file in files:
+            if file.status == 'final' or file.status == 'finalRevised':
+               if file.author != current_user:
+                    documents.append(file)
+        return render(request, "TextMissing/task_zone.html",
+                  {'documents': documents, "has_permission": True})
+
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+def finished_zone(request):
+    files = Document.objects.all()
+    documents =[]
+    if request.method == 'GET':
+        for file in files:
+            if file.status == 'blocked':
+                documents.append(file)
+        return render(request, "TextMissing/task_zone.html",
+                  {'documents': documents, "has_permission": True})
