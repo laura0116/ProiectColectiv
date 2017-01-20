@@ -48,7 +48,6 @@ class UpdateDocumentForm(ModelForm):
         instance.keywords = self.cleaned_data['keywords']
         new_file = self.cleaned_data['file']
         if new_file != instance.file:
-            os.remove(os.path.join(settings.MEDIA_ROOT, instance.file.name))
             instance.file = new_file
             instance.size = instance.file.size / 1048576.0
         if commit:
