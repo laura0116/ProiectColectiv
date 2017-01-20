@@ -8,6 +8,20 @@
     margin: 5px auto;
 }
 
+.generic-button {
+    padding: 10px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    background: #417690 ;
+    display: block;
+    margin: 6px auto;
+}
+
+.generic-button:hover{
+    color: #f5dd5d;
+}
+
 .metadata-name{
     background-color: gray;
     color: white;

@@ -17,14 +17,16 @@
             <div>Last Updated</div>
             <div>Abstract</div>
             <div>File</div>
+            <div>Size</div>
         </div>
         <div class="metadata-content">
-            <div>{{ document.version }}</div>
+            <div>v{{ document.version }}</div>
             <div>{{ document.author }}</div>
-            <div>{{ document.creation_date }}</div>
+            <div>{{ document.creation_date   }}</div>
             <div>{{ document.last_update }}</div>
             <div>{{ document.abstract }}</div>
-            <a href={{ document.get_file_url }}> {{ document.get_file_name }} </a>
+            <div><a href={{ document.get_file_url }}> {{ document.get_file_name }} </a></div>
+            <div>{{ document.size|floatformat:2 }} MB</div>
         </div>
     </div>
 </div>
