@@ -47,7 +47,6 @@ class Document(models.Model):
     def get_file_name(self):
         return str(self.file).split("/")[-1]
 
-
 class UploadedDocument(Document):
     def save(self, *args, **kwargs):
         self.type = DocumentType.UPLOADED
@@ -64,4 +63,3 @@ class RectorDispositionDocument(Document):
     def save(self, *args, **kwargs):
         self.type = DocumentType.DR
         super(Document, self).save(*args, **kwargs)
-
