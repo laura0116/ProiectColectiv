@@ -4,25 +4,31 @@ import random
 import string
 
 from django.core.files import File
-from django.forms import Form, CharField, IntegerField, DateField, FileField, ModelForm
+from django.forms import Form, CharField, IntegerField, DateField, FileField, ModelForm, forms
 from docxtpl import DocxTemplate
 import jinja2
 
-from TextMissing.models import StatusChoices, Document
+from TextMissing.models import StatusChoices, Document, UploadedDocument, RectorDispositionDocument, \
+    NecessityRequestDocument
 from TextMissing.utils.xlsbuilder import XlsBuilder
 
 
 class UploadDocumentForm(ModelForm):
     class Meta:
-        model = Document
+        model = UploadedDocument
         fields = ('document_name', 'abstract', 'keywords', 'file')
 
     def __init__(self, user, *args, **kwargs):
         super(UploadDocumentForm, self).__init__(*args, **kwargs)
         self.user = user
 
+    def clean_file(self):
+        if self.cleaned_data['file'] is None:
+            raise forms.ValidationError("A file must be chosen for upload")
+
+
     def save(self, commit=True):
-        instance = Document()
+        instance = UploadedDocument()
         instance.document_name = self.cleaned_data['document_name']
         instance.author = self.user
         instance.version = 0
@@ -38,7 +44,7 @@ class UploadDocumentForm(ModelForm):
 
 class RectorDispositionForm(ModelForm):
     class Meta:
-        model = Document
+        model = RectorDispositionDocument
         fields = ('document_name', 'abstract', 'keywords')
 
     def __init__(self, user, *args, **kwargs):
@@ -46,7 +52,7 @@ class RectorDispositionForm(ModelForm):
         self.user = user
 
     def save(self, commit=True):
-        instance = Document()
+        instance = RectorDispositionDocument()
         instance.document_name = self.cleaned_data['document_name']
         instance.author = self.user
         instance.version = 0
@@ -71,7 +77,7 @@ class RectorDispositionForm(ModelForm):
 
 class NecessityRequestForm(ModelForm):
     class Meta:
-        model = Document
+        model = NecessityRequestDocument
         fields = ('document_name', 'abstract', 'keywords')
 
     def __init__(self, user, *args, **kwargs):
@@ -79,7 +85,7 @@ class NecessityRequestForm(ModelForm):
         self.user = user
 
     def save(self, commit=True):
-        instance = Document()
+        instance = NecessityRequestDocument()
         instance.document_name = self.cleaned_data['document_name']
         instance.author = self.user
         instance.version = 0

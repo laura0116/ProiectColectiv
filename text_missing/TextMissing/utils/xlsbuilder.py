@@ -3,7 +3,9 @@ import string
 
 import xlsxwriter
 
-#TODO: construct actual valid referat de necesitate here
+
+# TODO: construct actual valid referat de necesitate here
+# see: http://xlsxwriter.readthedocs.io/ for info about merging rows and columns etc.
 class XlsBuilder:
     def __init__(self):
         self.file_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(20))
