@@ -1,6 +1,7 @@
 import os
 
 from django.contrib.auth.decorators import login_required
+from django.forms import model_to_dict
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, render_to_response
 
@@ -10,7 +11,7 @@ from django.urls import reverse
 from django.urls import reverse_lazy
 
 from LoginApp.models import Client
-from TextMissing.forms import UploadDocumentForm
+from TextMissing.forms import AddDocumentForm, UpdateDocumentForm
 from TextMissing.models import Document
 from text_missing import settings
 
@@ -34,15 +35,30 @@ def delete_document(request, document_id):
 
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
-def upload_document(request):
+def add_document(request):
     current_user = Client.objects.filter(user=request.user).first()
     if request.method == 'POST':
-        form = UploadDocumentForm(current_user, request.POST, request.FILES)
+        form = AddDocumentForm(current_user, request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect('TextMissing:documents')
     else:
-        form = UploadDocumentForm(user=current_user)
+        form = AddDocumentForm(user=current_user)
+    return render(request, 'TextMissing/upload_document.html', {
+        'form': form
+    })
+
+
+def update_document(request, document_id):
+    current_user = Client.objects.filter(user=request.user).first()
+    current_document = Document.objects.filter(id=document_id).first()
+    if request.method == 'POST':
+        form = UpdateDocumentForm(current_user, document_id, request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('TextMissing:documents')
+    else:
+        form = UpdateDocumentForm(current_user, document_id, initial=model_to_dict(current_document))
     return render(request, 'TextMissing/upload_document.html', {
         'form': form
     })
