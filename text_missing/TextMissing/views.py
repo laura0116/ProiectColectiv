@@ -1,6 +1,7 @@
 import os
 
 from django.contrib.auth.decorators import login_required
+from django.forms import model_to_dict
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, render_to_response
 
@@ -10,8 +11,10 @@ from django.urls import reverse
 from django.urls import reverse_lazy
 
 from LoginApp.models import Client
-from TextMissing.forms import UploadDocumentForm
-from TextMissing.models import Document
+from TextMissing.forms import AddDocumentForm, RectorDispositionForm, NecessityRequestForm, UpdateRectorDisposition, \
+    UpdateNecessityRequest
+from TextMissing.forms import AddDocumentForm, UpdateDocumentForm
+from TextMissing.models import Document, DocumentType
 from text_missing import settings
 
 
@@ -20,7 +23,7 @@ def documents_page(request):
     if request.user.is_staff:
         return redirect('admin:index')
     return render(request, "TextMissing/documents.html",
-                  {'documents': Document.objects.all(), "has_permission": True})
+                  {'documents': Document.objects.all(), "document_types": DocumentType, "has_permission": True})
 
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
@@ -34,15 +37,50 @@ def delete_document(request, document_id):
 
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
-def upload_document(request):
+def add_document(request, document_type):
+    options = {
+        DocumentType.UPLOADED: AddDocumentForm,
+        DocumentType.DR: RectorDispositionForm,
+        DocumentType.RN: NecessityRequestForm
+    }
+    return upload_form(request, options[document_type])
+
+
+def update_form(request, document_id, update_form_class):
     current_user = Client.objects.filter(user=request.user).first()
+    current_document = Document.objects.filter(id=document_id).first()
     if request.method == 'POST':
-        form = UploadDocumentForm(current_user, request.POST, request.FILES)
+        form = update_form_class(current_user, document_id, request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect('TextMissing:documents')
     else:
-        form = UploadDocumentForm(user=current_user)
+        form = update_form_class(current_user, document_id, initial=model_to_dict(current_document))
+    return render(request, 'TextMissing/upload_document.html', {
+        'form': form
+    })
+
+
+def update_document(request, document_id):
+    options = {
+        DocumentType.UPLOADED: UpdateDocumentForm,
+        DocumentType.DR: UpdateRectorDisposition,
+        DocumentType.RN: UpdateNecessityRequest
+    }
+    document_type = Document.objects.filter(id=document_id).first().type
+    return update_form(request,document_id, options[document_type])
+
+
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+def upload_form(request, document_form_class):
+    current_user = Client.objects.filter(user=request.user).first()
+    if request.method == 'POST':
+        form = document_form_class(current_user, request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('TextMissing:documents')
+    else:
+        form = document_form_class(user=current_user)
     return render(request, 'TextMissing/upload_document.html', {
         'form': form
     })
