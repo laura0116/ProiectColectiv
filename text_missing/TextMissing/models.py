@@ -1,3 +1,4 @@
+import math
 from django.db import models
 
 # Create your models here.
@@ -32,9 +33,9 @@ class Document(models.Model):
     document_name = models.CharField(max_length=64)
     author = models.ForeignKey(Client, null=False, default=1)
     size = models.FloatField(default=0)
-    version = models.CharField(max_length=64)
+    version = models.CharField(max_length=64, default=0.1)
     creation_date = models.DateField(auto_now_add=True)
-    last_update = models.DateField(auto_now_add=True)
+    last_update = models.DateField(auto_now=True)
     abstract = models.CharField(max_length=100)
     keywords = models.CharField(max_length=100)
     status = models.CharField(max_length=20, choices=StatusChoices.CHOICES)
@@ -65,3 +66,6 @@ class RectorDispositionDocument(Document):
     def save(self, *args, **kwargs):
         self.type = DocumentType.DR
         super(Document, self).save(*args, **kwargs)
+
+
+
