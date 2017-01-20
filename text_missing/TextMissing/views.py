@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.urls import reverse_lazy
 
 from LoginApp.models import Client
-from TextMissing.forms import UploadDocumentForm
+from TextMissing.forms import UploadDocumentForm, RectorDispositionForm, NecessityRequestForm
 from TextMissing.models import Document
 from text_missing import settings
 
@@ -32,17 +32,30 @@ def delete_document(request, document_id):
         files.delete()
     return redirect('TextMissing:documents')
 
-
-@login_required(login_url=reverse_lazy('LoginApp:login'))
-def upload_document(request):
+def upload_form(request, document_form_class):
     current_user = Client.objects.filter(user=request.user).first()
     if request.method == 'POST':
-        form = UploadDocumentForm(current_user, request.POST, request.FILES)
+        form = document_form_class(current_user, request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect('TextMissing:documents')
     else:
-        form = UploadDocumentForm(user=current_user)
+        form = document_form_class(user=current_user)
     return render(request, 'TextMissing/upload_document.html', {
         'form': form
     })
+
+
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+def upload_document(request):
+    return upload_form(request, UploadDocumentForm)
+
+
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+def upload_rector_disposition(request):
+    return upload_form(request, RectorDispositionForm)
+
+
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+def upload_necessity_request(request):
+    return upload_form(request, NecessityRequestForm)
