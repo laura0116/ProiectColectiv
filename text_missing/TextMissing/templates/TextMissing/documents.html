@@ -13,7 +13,7 @@
         <a href="{% url "TextMissing:upload" document_type=document_types.RN %}">
             <button class="generic-button">Referat de necesitate</button>
         </a>
-    <div style="display: flex">
+    <div style="display: flex; flex-direction: column">
         {% for doc in documents %}
             {% include "TextMissing/document.html" with document=doc %}
         {% endfor %}

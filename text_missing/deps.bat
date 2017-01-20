@@ -1,2 +1,2 @@
-pip install docxtpl
+pip instpip install docxtpl
 pip install xlsxwriter
