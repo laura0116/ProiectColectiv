@@ -10,6 +10,7 @@ import jinja2
 
 from TextMissing.models import StatusChoices, Document, UploadedDocument, RectorDispositionDocument, \
     NecessityRequestDocument
+from TextMissing.utils.version_handler import VersionHandler
 from TextMissing.utils.xlsbuilder import XlsBuilder
 
 
@@ -30,7 +31,6 @@ class AddDocumentForm(ModelForm):
         instance = UploadedDocument()
         instance.document_name = self.cleaned_data['document_name']
         instance.author = self.user
-        instance.version = 0
         instance.abstract = self.cleaned_data['abstract']
         instance.keywords = self.cleaned_data['keywords']
         instance.status = StatusChoices.DRAFT
@@ -54,7 +54,6 @@ class RectorDispositionForm(ModelForm):
         instance = RectorDispositionDocument()
         instance.document_name = self.cleaned_data['document_name']
         instance.author = self.user
-        instance.version = 0
         instance.abstract = self.cleaned_data['abstract']
         instance.keywords = self.cleaned_data['keywords']
         instance.status = StatusChoices.DRAFT
@@ -87,7 +86,6 @@ class NecessityRequestForm(ModelForm):
         instance = NecessityRequestDocument()
         instance.document_name = self.cleaned_data['document_name']
         instance.author = self.user
-        instance.version = 0
         instance.abstract = self.cleaned_data['abstract']
         instance.keywords = self.cleaned_data['keywords']
         instance.status = StatusChoices.DRAFT
@@ -104,7 +102,7 @@ class NecessityRequestForm(ModelForm):
 class UpdateDocumentForm(ModelForm):
     class Meta:
         model = UploadedDocument
-        fields = ('document_name', 'abstract', 'keywords', 'file')
+        fields = ('document_name', 'abstract', 'keywords', 'status', 'file')
 
     def __init__(self, user, document_id, *args, **kwargs):
         super(UpdateDocumentForm, self).__init__(*args, **kwargs)
@@ -116,11 +114,14 @@ class UpdateDocumentForm(ModelForm):
         instance.document_name = self.cleaned_data['document_name']
         instance.abstract = self.cleaned_data['abstract']
         instance.keywords = self.cleaned_data['keywords']
+        instance.status = self.cleaned_data['status']
         new_file = self.cleaned_data['file']
-        if new_file != instance.file:
+        if new_file and new_file != instance.file:
             instance.file = new_file
             instance.size = instance.file.size / 1048576.0
         if commit:
+            instance.save()
+            instance.version = VersionHandler.upgradeVersion(instance)
             instance.save()
         return instance
 
@@ -128,7 +129,7 @@ class UpdateDocumentForm(ModelForm):
 class UpdateRectorDisposition(ModelForm):
     class Meta:
         model = RectorDispositionDocument
-        fields = ('document_name', 'abstract', 'keywords')
+        fields = ('document_name', 'abstract', 'keywords', 'status')
 
     def __init__(self, user, document_id, *args, **kwargs):
         super(UpdateRectorDisposition, self).__init__(*args, **kwargs)
@@ -140,9 +141,12 @@ class UpdateRectorDisposition(ModelForm):
         instance.document_name = self.cleaned_data['document_name']
         instance.abstract = self.cleaned_data['abstract']
         instance.keywords = self.cleaned_data['keywords']
+        instance.status = self.cleaned_data['status']
         set_file_content(instance, instance.document_name + ".docx", self.make_doc())
         instance.size = instance.file.size / 1048576.0
         if commit:
+            instance.save()
+            instance.version = VersionHandler.upgradeVersion(instance)
             instance.save()
         return instance
 
@@ -159,7 +163,7 @@ class UpdateRectorDisposition(ModelForm):
 class UpdateNecessityRequest(ModelForm):
     class Meta:
         model = NecessityRequestDocument
-        fields = ('document_name', 'abstract', 'keywords')
+        fields = ('document_name', 'abstract', 'keywords', 'status')
 
     def __init__(self, user, document_id, *args, **kwargs):
         super(UpdateNecessityRequest, self).__init__(*args, **kwargs)
@@ -171,12 +175,15 @@ class UpdateNecessityRequest(ModelForm):
         instance.document_name = self.cleaned_data['document_name']
         instance.abstract = self.cleaned_data['abstract']
         instance.keywords = self.cleaned_data['keywords']
+        instance.status = self.cleaned_data['status']
         xl = XlsBuilder()
         xl.set_content({"UserName": str(self.user)})
         xl.save()
         set_file_content(instance, instance.document_name + ".xlsx", xl.file_name)
         instance.size = instance.file.size / 1048576.0
         if commit:
+            instance.save()
+            instance.version = VersionHandler.upgradeVersion(instance)
             instance.save()
         return instance
 
