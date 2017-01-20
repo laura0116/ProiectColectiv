@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.urls import reverse_lazy
 
 from LoginApp.models import Client
+from TextMissing.forms import UploadDocumentForm, RectorDispositionForm, NecessityRequestForm
 from TextMissing.forms import AddDocumentForm, UpdateDocumentForm
 from TextMissing.models import Document
 from text_missing import settings
@@ -62,3 +63,13 @@ def update_document(request, document_id):
     return render(request, 'TextMissing/upload_document.html', {
         'form': form
     })
+
+
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+def upload_necessity_request(request):
+    return upload_form(request, NecessityRequestForm)
+
+def upload_rector_disposition(request):
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+
+    return upload_form(request, RectorDispositionForm)

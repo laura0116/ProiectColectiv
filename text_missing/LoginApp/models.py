@@ -122,3 +122,17 @@ def pre_delete_client(sender, **kwargs):
     kwargs["instance"].user = None
     user.delete()
     is_in_pre_delete = False
+
+class UserGroup(models.Model):
+    name = models.CharField(max_length=64)
+    leader = models.ForeignKey(Client, null=False, default=1, related_name="Leader")
+    users = models.ManyToManyField(Client, related_name="Users")
+
+    def get_usergroup(self):
+        return self.name
+
+    def get_leader(self):
+        return self.leader
+
+    def get_users(self):
+        return "\n".join([u.first_name+" "+u.last_name+"; " for u in self.users.all()])
