@@ -27,6 +27,7 @@ class DocumentType:
         (RN, "Necessity request")
     )
 
+
 class Document(models.Model):
     document_name = models.CharField(max_length=64)
     author = models.ForeignKey(Client, null=False, default=1)
@@ -46,6 +47,7 @@ class Document(models.Model):
 
     def get_file_name(self):
         return str(self.file).split("/")[-1]
+
 
 class UploadedDocument(Document):
     def save(self, *args, **kwargs):
