@@ -46,3 +46,7 @@ def upload_document(request):
     return render(request, 'TextMissing/upload_document.html', {
         'form': form
     })
+
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+def zones(request):
+    return render(request,'TextMissing/zones.html')
