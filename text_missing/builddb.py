@@ -26,6 +26,7 @@ def generate_user(user_class):
     nu.email = random.choice(emailStart) + "@" + random.choice(emailEnd) + "." + random.choice(emailFinal)
     nu.save()
     nu.user.set_password("parolaparola")
+    nu.user.save()
     nu.is_activated = True
     nu.save()
     return nu
