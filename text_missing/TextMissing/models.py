@@ -52,6 +52,7 @@ class FlowType:
         (NECESSITY_REQUEST, "Necessity Request"),
     )
 
+
 class FinancingSource:
     NO_FINANCING = 'no financing'
     COLLEGE_BUDGET = 'college budget'
@@ -65,7 +66,6 @@ class FinancingSource:
         (PROJECT_FINANCING, "Project/grant financing"),
         (COMBINED_FINANCING, "Combined financing")
     )
-
 
 
 class DocumentFlow(models.Model):
