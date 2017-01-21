@@ -9,7 +9,9 @@ from docxtpl import DocxTemplate
 import jinja2
 
 from TextMissing.models import StatusChoices, Document, UploadedDocument, RectorDispositionDocument, \
-    NecessityRequestDocument
+    NecessityRequestDocument, DocumentType
+from TextMissing.utils import document_manager
+from TextMissing.utils.document_manager import DocumentManager
 from TextMissing.utils.version_handler import VersionHandler
 from TextMissing.utils.xlsbuilder import XlsBuilder
 
@@ -28,17 +30,14 @@ class AddDocumentForm(ModelForm):
             raise forms.ValidationError("A file must be chosen for upload")
 
     def save(self, commit=True):
-        instance = UploadedDocument()
-        instance.document_name = self.cleaned_data['document_name']
-        instance.author = self.user
-        instance.abstract = self.cleaned_data['abstract']
-        instance.keywords = self.cleaned_data['keywords']
-        instance.status = StatusChoices.DRAFT
-        instance.file = self.cleaned_data['file']
-        instance.size = instance.file.size / 1048576.0
-        if commit:
-            instance.save()
-        return instance
+        DocumentManager.add_document(DocumentType.UPLOADED,
+                                     self.cleaned_data['document_name'],
+                                     self.user,
+                                     self.cleaned_data['abstract'],
+                                     self.cleaned_data['keywords'],
+                                     StatusChoices.DRAFT,
+                                     self.cleaned_data['file'])
+
 
 
 class RectorDispositionForm(ModelForm):
@@ -51,17 +50,11 @@ class RectorDispositionForm(ModelForm):
         self.user = user
 
     def save(self, commit=True):
-        instance = RectorDispositionDocument()
-        instance.document_name = self.cleaned_data['document_name']
-        instance.author = self.user
-        instance.abstract = self.cleaned_data['abstract']
-        instance.keywords = self.cleaned_data['keywords']
-        instance.status = StatusChoices.DRAFT
-        set_file_content(instance, instance.document_name + ".docx", self.make_doc())
-        instance.size = instance.file.size / 1048576.0
-        if commit:
-            instance.save()
-        return instance
+        DocumentManager.add_document(DocumentType.DR,
+                                     self.cleaned_data['document_name'],
+                                     self.user, self.cleaned_data['abstract'],
+                                     self.cleaned_data['keywords'],
+                                     StatusChoices.DRAFT)
 
     def make_doc(self):
         doc = DocxTemplate("templates/doc-templates/dr.docx")
@@ -83,21 +76,13 @@ class NecessityRequestForm(ModelForm):
         self.user = user
 
     def save(self, commit=True):
-        instance = NecessityRequestDocument()
-        instance.document_name = self.cleaned_data['document_name']
-        instance.author = self.user
-        instance.abstract = self.cleaned_data['abstract']
-        instance.keywords = self.cleaned_data['keywords']
-        instance.status = StatusChoices.DRAFT
-        xl = XlsBuilder()
-        xl.set_content({"UserName": str(self.user)})
-        xl.save()
-        set_file_content(instance, instance.document_name + ".xlsx", xl.file_name)
-        instance.size = instance.file.size / 1048576.0
-        if commit:
-            instance.save()
-        return instance
-
+        DocumentManager.add_document(DocumentType.RN,
+                                     self.cleaned_data['document_name'],
+                                     self.user,
+                                     self.cleaned_data['abstract'],
+                                     self.cleaned_data['keywords'],
+                                     StatusChoices.DRAFT,
+                                     {"UserName": str(self.user)})
 
 class UpdateDocumentForm(ModelForm):
     class Meta:
@@ -110,20 +95,7 @@ class UpdateDocumentForm(ModelForm):
         self.document_id = document_id
 
     def save(self, commit=True):
-        instance = UploadedDocument.objects.filter(id=self.document_id).first()
-        instance.document_name = self.cleaned_data['document_name']
-        instance.abstract = self.cleaned_data['abstract']
-        instance.keywords = self.cleaned_data['keywords']
-        instance.status = self.cleaned_data['status']
-        new_file = self.cleaned_data['file']
-        if new_file and new_file != instance.file:
-            instance.file = new_file
-            instance.size = instance.file.size / 1048576.0
-        if commit:
-            instance.save()
-            instance.version = VersionHandler.upgradeVersion(instance)
-            instance.save()
-        return instance
+        DocumentManager.update_document(self.document_id,DocumentType.UPLOADED, self.cleaned_data['document_name'], self.cleaned_data['abstract'], self.cleaned_data['keywords'],self.cleaned_data['status'],self.cleaned_data['file'])
 
 
 class UpdateRectorDisposition(ModelForm):
@@ -137,18 +109,13 @@ class UpdateRectorDisposition(ModelForm):
         self.document_id = document_id
 
     def save(self, commit=True):
-        instance = RectorDispositionDocument.objects.filter(id=self.document_id).first()
-        instance.document_name = self.cleaned_data['document_name']
-        instance.abstract = self.cleaned_data['abstract']
-        instance.keywords = self.cleaned_data['keywords']
-        instance.status = self.cleaned_data['status']
-        set_file_content(instance, instance.document_name + ".docx", self.make_doc())
-        instance.size = instance.file.size / 1048576.0
-        if commit:
-            instance.save()
-            instance.version = VersionHandler.upgradeVersion(instance)
-            instance.save()
-        return instance
+        DocumentManager.update_document(self.document_id, DocumentType.DR,
+                                        self.cleaned_data['document_name'],
+                                        self.cleaned_data['abstract'],
+                                        self.cleaned_data['keywords'],
+                                        self.cleaned_data['status'],
+                                        {'user_name': str(self.user)})
+
 
     def make_doc(self):
         doc = DocxTemplate("templates/doc-templates/dr.docx")
@@ -171,21 +138,14 @@ class UpdateNecessityRequest(ModelForm):
         self.document_id = document_id
 
     def save(self, commit=True):
-        instance = NecessityRequestDocument.objects.filter(id=self.document_id).first()
-        instance.document_name = self.cleaned_data['document_name']
-        instance.abstract = self.cleaned_data['abstract']
-        instance.keywords = self.cleaned_data['keywords']
-        instance.status = self.cleaned_data['status']
-        xl = XlsBuilder()
-        xl.set_content({"UserName": str(self.user)})
-        xl.save()
-        set_file_content(instance, instance.document_name + ".xlsx", xl.file_name)
-        instance.size = instance.file.size / 1048576.0
-        if commit:
-            instance.save()
-            instance.version = VersionHandler.upgradeVersion(instance)
-            instance.save()
-        return instance
+        DocumentManager.update_document(self.document_id, DocumentType.RN,
+                                        self.cleaned_data['document_name'],
+                                        self.cleaned_data['abstract'],
+                                        self.cleaned_data['keywords'],
+                                        self.cleaned_data['status'],
+                                        {"UserName": str(self.user)})
+
+
 
 
 def set_file_content(instance, name, path):

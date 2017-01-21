@@ -1,6 +1,6 @@
 import os
 
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.forms import model_to_dict
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, render_to_response
@@ -16,6 +16,7 @@ from TextMissing.forms import AddDocumentForm, RectorDispositionForm, NecessityR
 from TextMissing.forms import AddDocumentForm, UpdateDocumentForm
 from TextMissing.models import Document, DocumentType
 from TextMissing.utils.check_user import is_manager, is_contributor, is_manager_or_contributor
+from TextMissing.utils.document_manager import DocumentManager
 from text_missing import settings
 
 
@@ -32,9 +33,10 @@ def documents_page(request):
 def delete_document(request, document_id):
     print(request.method)
     if request.method == "GET":
-        files = Document.objects.filter(id=document_id)
-        os.remove(os.path.join(settings.MEDIA_ROOT, files.first().file.name))
-        files.delete()
+        # files = Document.objects.filter(id=document_id)
+        # os.remove(os.path.join(settings.MEDIA_ROOT, files.first().file.name))
+        # files.delete()
+        DocumentManager.remove_document(document_id)
     return redirect('TextMissing:documents')
 
 
