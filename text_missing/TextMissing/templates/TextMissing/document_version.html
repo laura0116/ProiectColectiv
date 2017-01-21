@@ -4,6 +4,7 @@
 <div class="document-container">
     <div class="metadata-container">
         <div class="metadata-title">
+            <div>Name</div>
             <div>Version</div>
             <div>Author</div>
             <div>Created on</div>
@@ -13,7 +14,8 @@
             <div>Size</div>
         </div>
         <div class="metadata-content">
-            <div>v{{ document.version }}</div>
+            <div>{{ document.document_name }}</div>
+            <div>{{ document.version }}</div>
             <div>{{ document.author }}</div>
             <div>{{ document.creation_date   }}</div>
             <div>{{ document.last_update }}</div>

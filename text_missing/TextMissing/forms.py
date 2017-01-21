@@ -89,7 +89,6 @@ class RectorDispositionForm(ModelForm):
         res['sum_motivation'] = self.cleaned_data['sum_motivation']
         res['financing_source'] = self.cleaned_data['financing_source']
         return res
-        return res
 
     def save(self, commit=True):
         DocumentManager.add_document(DocumentType.DR,
@@ -122,9 +121,7 @@ class NecessityRequestForm(ModelForm):
 class UpdateDocumentForm(ModelForm):
     class Meta:
         model = UploadedDocument
-        fields = ('document_name', 'abstract', 'keywords', 'status')
-
-
+        fields = ('document_name', 'abstract', 'keywords', 'status', 'file')
 
     def __init__(self, user, document_id, *args, **kwargs):
         super(UpdateDocumentForm, self).__init__(*args, **kwargs)

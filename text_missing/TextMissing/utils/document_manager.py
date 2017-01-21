@@ -25,6 +25,7 @@ class  DocumentManager:
 
         doc = UploadedDocument()
         doc.status = status
+        doc.save()
         doc.versions.add(instance)
         doc.save()
 
@@ -45,6 +46,7 @@ class  DocumentManager:
 
         doc = NecessityRequestDocument()
         doc.status = status
+        doc.save()
         doc.versions.add(instance)
         doc.save()
 
@@ -57,14 +59,16 @@ class  DocumentManager:
         instance.document_name = document_name
         instance.abstract = abstract
         instance.keywords = keywords
-        new_file = file
-        if new_file and new_file != instance.file:
-            instance.file = new_file
-        instance.version = VersionHandler.upgradeVersion(instance)
+        if file:
+            instance.file = file
+        else:
+            instance.file = docInstance.file
+        instance.author = docInstance.author
+        instance.version = VersionHandler.upgradeVersion(docInstance)
         instance.save()
         instance.size = instance.file.size / (1024.0 * 1024)
         instance.save()
-
+        docInstance.save()
         docInstance.versions.add(instance)
         docInstance.save()
 
@@ -74,6 +78,7 @@ class  DocumentManager:
         ver_instance.document_name = document_name
         ver_instance.abstract = abstract
         ver_instance.keywords = keywords
+        ver_instance.author = instance.author
         ver_instance.save()
         instance.status = status
         instance.city = context['city']
@@ -85,11 +90,13 @@ class  DocumentManager:
         instance.sum_motivation = context['sum_motivation']
         instance.financing_source = context['financing_source']
         instance.save()
-        set_file_content(instance, instance.document_name + ".docx", DocumentManager.make_doc(context))
+        set_file_content(ver_instance, ver_instance.document_name + ".docx", DocumentManager.make_doc(context))
 
-        instance.save()
-        instance.size = instance.file.size / (1024.0 * 1024)
-        instance.save()
+        ver_instance.save()
+        ver_instance.size = ver_instance.file.size / (1024.0 * 1024)
+        if len(instance.versions.all()) != 0:
+            ver_instance.version = VersionHandler.upgradeVersion(instance)
+        ver_instance.save()
         instance.versions.add(ver_instance)
         instance.save()
 
@@ -104,24 +111,27 @@ class  DocumentManager:
     def __update_rector_disposition_document(idx,document_name,abstract,keywords,status, context):
         instance = RectorDispositionDocument.objects.filter(id=idx).first()
         DocumentManager.__create_instance_dr(instance, document_name, abstract, keywords, status, context)
-        ver_instance.version = VersionHandler.upgradeVersion(ver_instance)
         instance.save()
 
     @staticmethod
     def __update_necessity_request_document(idx,document_name,abstract,keywords,status,user):
-        instance = NecessityRequestDocument.objects.filter(id=idx).first()
+        doc_instance = NecessityRequestDocument.objects.filter(id=idx).first()
+        doc_instance.status = status
+        instance = DocumentVersion()
         instance.document_name = document_name
         instance.abstract = abstract
         instance.keywords = keywords
-        instance.status = status
         xl = XlsBuilder()
         xl.set_content(user)
         xl.save()
         set_file_content(instance, instance.document_name + ".xlsx", xl.file_name)
         instance.save()
         instance.size = instance.file.size / (1024.0 * 1024)
-        instance.version = VersionHandler.upgradeVersion(instance)
+        instance.version = VersionHandler.upgradeVersion(doc_instance)
         instance.save()
+        doc_instance.save()
+        doc_instance.versions.add(instance)
+        doc_instance.save()
 
     @staticmethod
     def add_document(type, document_name, author, abstract, keywords, status,param = None):
@@ -143,9 +153,13 @@ class  DocumentManager:
 
     @staticmethod
     def remove_document(idx):
-        files = Document.objects.filter(id=idx)
-        os.remove(os.path.join(settings.MEDIA_ROOT, files.first().file.name))
-        files.delete()
+        file = Document.objects.filter(id=idx).first()
+        for ver in file.versions.all():
+            filepath = os.path.join(settings.MEDIA_ROOT, ver.file.name)
+            if os.path.isfile(filepath):
+                os.remove(filepath)
+        file.versions.all().delete()
+        file.delete()
 
     @staticmethod
     def make_doc(context):

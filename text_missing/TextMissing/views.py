@@ -162,4 +162,7 @@ def finished_zone(request):
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
 def view_versions(request, document_id):
-    files = Document.objects.all()
+    doc = Document.objects.filter(id=document_id).first()
+    return render(request, "TextMissing/version_list.html",
+                  {'documents': doc.versions.all(), "has_permission": True,
+                   "is_manager_or_contributor": is_manager_or_contributor(request.user) })
