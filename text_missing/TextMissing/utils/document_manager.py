@@ -26,8 +26,7 @@ class DocumentManager:
         instance.save()
 
     @staticmethod
-    def __add_necessity_request_document(document_name, author,abstract,keywords,status,user):
-
+    def __add_necessity_request_document(document_name, author, abstract, keywords, status, user):
         instance = NecessityRequestDocument()
         instance.document_name = document_name
         instance.author = author
@@ -58,7 +57,7 @@ class DocumentManager:
         instance.save()
 
     @staticmethod
-    def __create_instance_dr(instance, document_name,abstract,keywords,status,context):
+    def __create_instance_dr(instance, document_name, abstract, keywords, status, context):
         instance.document_name = document_name
         instance.abstract = abstract
         instance.keywords = keywords
@@ -79,21 +78,20 @@ class DocumentManager:
         instance.save()
 
     @staticmethod
-    def __add_rector_disposition_document(document_name, author,abstract,keywords,status, context):
+    def __add_rector_disposition_document(document_name, author, abstract, keywords, status, context):
         instance = RectorDispositionDocument()
         instance.author = author
-        DocumentManager.__create_instance_dr(instance, document_name,abstract,keywords,status,context)
-
+        DocumentManager.__create_instance_dr(instance, document_name, abstract, keywords, status, context)
 
     @staticmethod
-    def __update_rector_disposition_document(idx,document_name,abstract,keywords,status, context):
+    def __update_rector_disposition_document(idx, document_name, abstract, keywords, status, context):
         instance = RectorDispositionDocument.objects.filter(id=idx).first()
         DocumentManager.__create_instance_dr(instance, document_name, abstract, keywords, status, context)
         instance.version = VersionHandler.upgradeVersion(instance)
         instance.save()
 
     @staticmethod
-    def __update_necessity_request_document(idx,document_name,abstract,keywords,status,user):
+    def __update_necessity_request_document(idx, document_name, abstract, keywords, status, user):
         instance = NecessityRequestDocument.objects.filter(id=idx).first()
         instance.document_name = document_name
         instance.abstract = abstract
@@ -136,12 +134,12 @@ class DocumentManager:
     def make_doc(context):
         doc = DocxTemplate("templates/doc-templates/dr.docx")
         doc.render(context)
-        filePath = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(20))
-        doc.save(filePath)
-        return filePath
+        file_path = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(20))
+        doc.save(file_path)
+        return file_path
 
 
 def set_file_content(instance, name, path):
     with open(path, 'rb') as f:
-        instance.file.save(save=False)
+        instance.file.save(name, f, save=False)
     os.remove(path)

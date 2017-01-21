@@ -1,22 +1,15 @@
-import datetime
-import os
 import random
 import string
 
 import pycountry
-from django.core.files import File
-from django.forms import Form, CharField, IntegerField, DateField, FileField, ModelForm, forms, MultipleChoiceField, \
+from django.forms import ModelForm, forms, MultipleChoiceField, \
     CheckboxSelectMultiple
 from docxtpl import DocxTemplate
-import jinja2
 
-from LoginApp.models import UserGroup, GroupType
+from LoginApp.models import UserGroup
 from TextMissing.models import StatusChoices, Document, UploadedDocument, RectorDispositionDocument, \
     NecessityRequestDocument, DocumentType, DocumentFlow
-from TextMissing.utils import document_manager
 from TextMissing.utils.document_manager import DocumentManager
-from TextMissing.utils.version_handler import VersionHandler
-from TextMissing.utils.xlsbuilder import XlsBuilder
 
 
 class AddDocumentForm(ModelForm):
@@ -59,7 +52,7 @@ class RectorDispositionForm(ModelForm):
         found = False
         for el in ug:
             if el.type.name in ["student department", "teaching department", "project", "administrative department", \
-                    "doctoral school", "grant"]:
+                                "doctoral school", "grant"]:
                 res['group_type'] = el.type.name.upper()
                 res['group_name'] = el.name
                 found = True
@@ -89,7 +82,6 @@ class RectorDispositionForm(ModelForm):
         res['sum_motivation'] = self.cleaned_data['sum_motivation']
         res['financing_source'] = self.cleaned_data['financing_source']
         return res
-        return res
 
     def save(self, commit=True):
         DocumentManager.add_document(DocumentType.DR,
@@ -97,7 +89,7 @@ class RectorDispositionForm(ModelForm):
                                      self.user, self.cleaned_data['abstract'],
                                      self.cleaned_data['keywords'],
                                      StatusChoices.DRAFT,
-                                     param = self.build_dict()
+                                     param=self.build_dict()
                                      )
 
 
@@ -124,8 +116,6 @@ class UpdateDocumentForm(ModelForm):
     class Meta:
         model = UploadedDocument
         fields = ('document_name', 'abstract', 'keywords', 'status', 'file')
-
-
 
     def __init__(self, user, document_id, *args, **kwargs):
         super(UpdateDocumentForm, self).__init__(*args, **kwargs)
@@ -156,7 +146,7 @@ class UpdateRectorDisposition(ModelForm):
         found = False
         for el in ug:
             if el.type.name in ["student department", "teaching department", "project", "administrative department", \
-                    "doctoral school", "grant"]:
+                                "doctoral school", "grant"]:
                 res['group_type'] = el.type.name.upper()
                 res['group_name'] = el.name
                 found = True
@@ -240,6 +230,12 @@ class AddFlowForm(ModelForm):
         self.fields['documents'] = MultipleChoiceField(widget=CheckboxSelectMultiple,
                                                        choices=self.choices, label="Documents:")
 
+    def clean(self):
+        for document_id in self.cleaned_data['documents']:
+            document = Document.objects.filter(id=int(document_id)).first()
+            if document.type != self.cleaned_data['flow_type']:
+                raise forms.ValidationError("Validate")
+
     def save(self, **kwargs):
         instance = DocumentFlow()
         instance.name = self.cleaned_data['name']
@@ -251,9 +247,3 @@ class AddFlowForm(ModelForm):
             document = Document.objects.filter(id=int(document_id)).first()
             document.flow = instance
             document.save()
-
-
-def set_file_content(instance, path):
-    with open(path, 'rb'):
-        instance.file.save(save=False)
-    os.remove(path)
