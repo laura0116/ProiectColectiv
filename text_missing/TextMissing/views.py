@@ -14,7 +14,8 @@ from LoginApp.models import Client
 from TextMissing.forms import AddDocumentForm, RectorDispositionForm, NecessityRequestForm, UpdateRectorDisposition, \
     UpdateNecessityRequest
 from TextMissing.forms import AddDocumentForm, UpdateDocumentForm
-from TextMissing.models import Document, DocumentType
+from TextMissing.models import Document, DocumentType, RectorDispositionDocument, UploadedDocument, \
+    NecessityRequestDocument
 from TextMissing.utils.check_user import is_manager, is_contributor, is_manager_or_contributor
 from TextMissing.utils.document_manager import DocumentManager
 from text_missing import settings
@@ -52,9 +53,9 @@ def add_document(request, document_type):
     return upload_form(request, options[document_type])
 
 
-def update_form(request, document_id, update_form_class):
+def update_form(request, document_id, update_form_class, document_class):
     current_user = Client.objects.filter(user=request.user).first()
-    current_document = Document.objects.filter(id=document_id).first()
+    current_document = document_class.objects.filter(id=document_id).first()
     if request.method == 'POST':
         form = update_form_class(current_user, document_id, request.POST, request.FILES)
         if form.is_valid():
@@ -74,8 +75,13 @@ def update_document(request, document_id):
         DocumentType.DR: UpdateRectorDisposition,
         DocumentType.RN: UpdateNecessityRequest
     }
+    options_doc_type = {
+        DocumentType.UPLOADED: UploadedDocument,
+        DocumentType.DR: RectorDispositionDocument,
+        DocumentType.RN: NecessityRequestDocument
+    }
     document_type = Document.objects.filter(id=document_id).first().type
-    return update_form(request,document_id, options[document_type])
+    return update_form(request,document_id, options[document_type],options_doc_type[document_type])
 
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))

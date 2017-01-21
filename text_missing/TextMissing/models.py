@@ -127,7 +127,9 @@ class RectorDispositionDocument(Document):
     travel_purpose = models.CharField(max_length=500, default=None)
     sum = models.PositiveIntegerField(default=0)
     sum_motivation = models.CharField(max_length=500, default=None)
-    financing_source = models.CharField(max_length=20, choices=FinancingSource.CHOICES, default=FinancingSource.NO_FINANCING)
+    financing_source = models.CharField(max_length=20, choices=FinancingSource.CHOICES,
+                                        default=FinancingSource.NO_FINANCING)
+
     def save(self, *args, **kwargs):
         self.type = DocumentType.DR
         super(Document, self).save(*args, **kwargs)

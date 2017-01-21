@@ -21,21 +21,7 @@ class  DocumentManager:
         instance.status = status
         instance.file = file
         instance.save()
-        instance.size = instance.file.size
-        instance.save()
-
-    @staticmethod
-    def __add_rector_disposition_document(document_name, author,abstract,keywords,status, user):
-        instance = RectorDispositionDocument()
-        instance.document_name = document_name
-        instance.author = author
-        instance.abstract = abstract
-        instance.keywords = keywords
-        instance.status = status
-        set_file_content(instance, instance.document_name + ".docx", DocumentManager.make_doc(user))
-
-        instance.save()
-        instance.size = instance.file.size
+        instance.size = instance.file.size / (1024.0 * 1024)
         instance.save()
 
     @staticmethod
@@ -52,7 +38,7 @@ class  DocumentManager:
         xl.save()
         set_file_content(instance, instance.document_name + ".xlsx", xl.file_name)
         instance.save()
-        instance.size = instance.file.size
+        instance.size = instance.file.size / (1024.0 * 1024)
         instance.save()
 
     @staticmethod
@@ -67,21 +53,43 @@ class  DocumentManager:
             instance.file = new_file
         instance.version = VersionHandler.upgradeVersion(instance)
         instance.save()
-        instance.size = instance.file.size
+        instance.size = instance.file.size / (1024.0 * 1024)
         instance.save()
 
     @staticmethod
-    def __update_rector_disposition_document(idx,document_name,abstract,keywords,status, user):
-            instance = RectorDispositionDocument.objects.filter(id=idx).first()
-            instance.document_name = document_name
-            instance.abstract = abstract
-            instance.keywords = keywords
-            instance.status = status
-            set_file_content(instance, instance.document_name + ".docx", DocumentManager.make_doc(user))
-            instance.save()
-            instance.size = instance.file.size
-            instance.version = VersionHandler.upgradeVersion(instance)
-            instance.save()
+    def __create_instance_dr(instance, document_name,abstract,keywords,status,context):
+        instance.document_name = document_name
+        instance.abstract = abstract
+        instance.keywords = keywords
+        instance.status = status
+        instance.city = context['city']
+        instance.sum = context['cost']
+        instance.phone_number = context['phone_number']
+        instance.country = context['actual_country']
+        instance.travel_mean = context['travel_mean']
+        instance.travel_purpose = context['travel_purpose']
+        instance.sum_motivation = context['sum_motivation']
+        instance.financing_source = context['financing_source']
+        instance.save()
+        set_file_content(instance, instance.document_name + ".docx", DocumentManager.make_doc(context))
+
+        instance.save()
+        instance.size = instance.file.size / (1024.0 * 1024)
+        instance.save()
+
+    @staticmethod
+    def __add_rector_disposition_document(document_name, author,abstract,keywords,status, context):
+        instance = RectorDispositionDocument()
+        instance.author = author
+        DocumentManager.__create_instance_dr(instance, document_name,abstract,keywords,status,context)
+
+
+    @staticmethod
+    def __update_rector_disposition_document(idx,document_name,abstract,keywords,status, context):
+        instance = RectorDispositionDocument.objects.filter(id=idx).first()
+        DocumentManager.__create_instance_dr(instance, document_name, abstract, keywords, status, context)
+        instance.version = VersionHandler.upgradeVersion(instance)
+        instance.save()
 
     @staticmethod
     def __update_necessity_request_document(idx,document_name,abstract,keywords,status,user):
@@ -95,7 +103,7 @@ class  DocumentManager:
         xl.save()
         set_file_content(instance, instance.document_name + ".xlsx", xl.file_name)
         instance.save()
-        instance.size = instance.file.size
+        instance.size = instance.file.size / (1024.0 * 1024)
         instance.version = VersionHandler.upgradeVersion(instance)
         instance.save()
 
@@ -118,19 +126,19 @@ class  DocumentManager:
         switcher[type](idx,document_name,abstract,keywords,status,param)
 
     @staticmethod
-    def remove_document(self,idx):
+    def remove_document(idx):
         files = Document.objects.filter(id=idx)
         os.remove(os.path.join(settings.MEDIA_ROOT, files.first().file.name))
         files.delete()
 
     @staticmethod
-    def make_doc(user):
+    def make_doc(context):
         doc = DocxTemplate("templates/doc-templates/dr.docx")
-        context = {'user_name': user}
         doc.render(context)
         filePath = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(20))
         doc.save(filePath)
         return filePath
+
 
 def set_file_content(instance, name, path):
     with open(path, 'rb') as f:
