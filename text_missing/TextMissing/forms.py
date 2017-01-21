@@ -122,7 +122,7 @@ class NecessityRequestForm(ModelForm):
 class UpdateDocumentForm(ModelForm):
     class Meta:
         model = UploadedDocument
-        fields = ('document_name', 'abstract', 'keywords', 'status')
+        fields = ('document_name', 'abstract', 'keywords', 'status', 'file')
 
 
 
