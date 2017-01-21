@@ -86,16 +86,7 @@ class DocumentFlow(models.Model):
 
 
 class Document(models.Model):
-    document_name = models.CharField(max_length=64)
-    author = models.ForeignKey(Client, null=False, default=1)
-    size = models.FloatField(default=0)
-    version = models.CharField(max_length=64, default=0.1)
-    creation_date = models.DateField(auto_now_add=True)
-    last_update = models.DateField(auto_now=True)
-    abstract = models.CharField(max_length=100)
-    keywords = models.CharField(max_length=100)
     status = models.CharField(max_length=20, choices=StatusChoices.CHOICES)
-    file = models.FileField(upload_to='documents/%Y%m%d', null=True, blank=True)
     type = models.CharField(max_length=20, choices=DocumentType.CHOICES, default=DocumentType.UPLOADED)
     flow = models.ForeignKey(DocumentFlow, related_name="documents", null=True, default=None)
 
@@ -105,6 +96,19 @@ class Document(models.Model):
 
     def get_file_name(self):
         return str(self.file).split("/")[-1]
+
+
+class DocumentVersion(models.Model):
+    document_name = models.CharField(max_length=64)
+    author = models.ForeignKey(Client, null=False, default=1)
+    size = models.FloatField(default=0)
+    version = models.CharField(max_length=64, default=0.1)
+    creation_date = models.DateField(auto_now_add=True)
+    last_update = models.DateField(auto_now=True)
+    abstract = models.CharField(max_length=100)
+    keywords = models.CharField(max_length=100)
+    file = models.FileField(upload_to='documents/%Y%m%d', null=True, blank=True)
+    document = models.ForeignKey(Document, null=True, related_name="versions")
 
 
 class UploadedDocument(Document):

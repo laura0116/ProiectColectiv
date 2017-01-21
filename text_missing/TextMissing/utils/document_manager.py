@@ -2,7 +2,7 @@ import os
 
 from TextMissing.forms import *
 from TextMissing.models import StatusChoices, Document, UploadedDocument, RectorDispositionDocument, \
-    NecessityRequestDocument, DocumentType
+    NecessityRequestDocument, DocumentType, DocumentVersion
 from TextMissing.utils.version_handler import VersionHandler
 from TextMissing.utils.xlsbuilder import XlsBuilder
 from text_missing import settings
@@ -13,26 +13,28 @@ class  DocumentManager:
         pass
     @staticmethod
     def __add_uploaded_document(document_name, author,abstract,keywords,status,file):
-        instance = UploadedDocument()
+        instance = DocumentVersion()
         instance.document_name = document_name
         instance.author = author
         instance.abstract = abstract
         instance.keywords = keywords
-        instance.status = status
         instance.file = file
         instance.save()
         instance.size = instance.file.size / (1024.0 * 1024)
         instance.save()
 
+        doc = UploadedDocument()
+        doc.status = status
+        doc.versions.add(instance)
+        doc.save()
+
     @staticmethod
     def __add_necessity_request_document(document_name, author,abstract,keywords,status,user):
-
-        instance = NecessityRequestDocument()
+        instance = DocumentVersion()
         instance.document_name = document_name
         instance.author = author
         instance.abstract = abstract
         instance.keywords = keywords
-        instance.status = status
         xl = XlsBuilder()
         xl.set_content(user)
         xl.save()
@@ -41,13 +43,20 @@ class  DocumentManager:
         instance.size = instance.file.size / (1024.0 * 1024)
         instance.save()
 
+        doc = NecessityRequestDocument()
+        doc.status = status
+        doc.versions.add(instance)
+        doc.save()
+
     @staticmethod
     def __update_uploaded_document(idx,document_name,abstract,keywords,status,file):
-        instance = UploadedDocument.objects.filter(id=idx).first()
+        docInstance = UploadedDocument.objects.filter(id=idx).first()
+        docInstance.status = status
+
+        instance = DocumentVersion()
         instance.document_name = document_name
         instance.abstract = abstract
         instance.keywords = keywords
-        instance.status = status
         new_file = file
         if new_file and new_file != instance.file:
             instance.file = new_file
@@ -56,11 +65,16 @@ class  DocumentManager:
         instance.size = instance.file.size / (1024.0 * 1024)
         instance.save()
 
+        docInstance.versions.add(instance)
+        docInstance.save()
+
     @staticmethod
     def __create_instance_dr(instance, document_name,abstract,keywords,status,context):
-        instance.document_name = document_name
-        instance.abstract = abstract
-        instance.keywords = keywords
+        ver_instance = DocumentVersion()
+        ver_instance.document_name = document_name
+        ver_instance.abstract = abstract
+        ver_instance.keywords = keywords
+        ver_instance.save()
         instance.status = status
         instance.city = context['city']
         instance.sum = context['cost']
@@ -76,19 +90,21 @@ class  DocumentManager:
         instance.save()
         instance.size = instance.file.size / (1024.0 * 1024)
         instance.save()
+        instance.versions.add(ver_instance)
+        instance.save()
 
     @staticmethod
     def __add_rector_disposition_document(document_name, author,abstract,keywords,status, context):
         instance = RectorDispositionDocument()
         instance.author = author
         DocumentManager.__create_instance_dr(instance, document_name,abstract,keywords,status,context)
-
+        instance.save()
 
     @staticmethod
     def __update_rector_disposition_document(idx,document_name,abstract,keywords,status, context):
         instance = RectorDispositionDocument.objects.filter(id=idx).first()
         DocumentManager.__create_instance_dr(instance, document_name, abstract, keywords, status, context)
-        instance.version = VersionHandler.upgradeVersion(instance)
+        ver_instance.version = VersionHandler.upgradeVersion(ver_instance)
         instance.save()
 
     @staticmethod

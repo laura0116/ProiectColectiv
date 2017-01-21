@@ -9,7 +9,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = "text_missing.settings"
 django.setup()
 
 from LoginApp.models import Client, UserGroup, Contributor, Manager, GroupType
-from TextMissing.models import Document
+from TextMissing.models import Document, DocumentVersion
 
 from django.contrib.auth.models import User
 firstNames = ["Emil", "Ion", "Cornel", "Maria", "Vasile", "Bogdan", "Ana", "Laura", "Melisa", "Sergiu", "Ionut", "Dan", "George"]
@@ -45,7 +45,6 @@ def create_group(group_name, user_count=random.choice(range(2, 5))):
 if __name__ == "__main__":
     print("Cleaning db...")
     Client.objects.all().delete()
-    Document.objects.all().delete()
     UserGroup.objects.all().delete()
     GroupType.objects.all().delete()
 
