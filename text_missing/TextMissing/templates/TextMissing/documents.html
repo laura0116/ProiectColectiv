@@ -4,7 +4,7 @@
 {% block title %}{{ title }}{% endblock %}
 {% block content_title %}<h1>{{ title }}</h1>{% endblock %}
 {% block content %}
-        {% if user.type.is_manager_or_contributor %}
+        {% if is_manager_or_contributor %}
         <a href="{% url "TextMissing:upload" document_type=document_types.UPLOADED %}">
             <button class="generic-button">Upload document</button>
         </a>
