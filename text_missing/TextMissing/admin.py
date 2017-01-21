@@ -6,8 +6,10 @@ from TextMissing.models import Document, DocumentFlow
 
 
 class DocumentAdmin(admin.ModelAdmin):
+
     fields = ['document_name', 'author', 'version', 'flow', 'abstract', 'keywords', 'status', 'file']
     list_display = ['document_name', 'author', 'flow', 'size', 'version', 'abstract', 'keywords', 'status', 'file']
+
 
 
 class DocumentFlowAdmin(admin.ModelAdmin):
