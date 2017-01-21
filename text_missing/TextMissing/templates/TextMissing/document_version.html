@@ -2,22 +2,6 @@
 <link rel="stylesheet" type="text/css" href={% static "TextMissing/document.css" %}>
 
 <div class="document-container">
-    <div class="metadata-name">
-        {% if document.status != "blocked"  %}
-            {% if is_manager_or_contributor %}
-                <a href="{% url "TextMissing:delete_document" document_id=document.id %}">
-                    <span class="delete-button glyphicon glyphicon-remove pull-left"></span>
-                </a>
-                <a href="{% url "TextMissing:update_document" document_id=document.id %}">
-                    <span class="update-button glyphicon glyphicon-pencil pull-left"></span>
-                </a>
-                <a href="{% url "TextMissing:view_versions" document_id=document.id %}">
-                    <span class="update-button glyphicon glyphicon-eye-open pull-left"></span>
-                </a>
-            {% endif %}
-        {% endif %}
-        <span>{{ document.document_name }}</span>
-    </div>
     <div class="metadata-container">
         <div class="metadata-title">
             <div>Version</div>

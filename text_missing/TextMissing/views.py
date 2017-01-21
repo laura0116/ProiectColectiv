@@ -158,3 +158,8 @@ def finished_zone(request):
                 documents.append(file)
         return render(request, "TextMissing/task_zone.html",
                   {'documents': documents, "has_permission": True})
+
+
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+def view_versions(request, document_id):
+    files = Document.objects.all()
