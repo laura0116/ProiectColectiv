@@ -52,6 +52,7 @@ class FlowType:
         (NECESSITY_REQUEST, "Necessity Request"),
     )
 
+
 class FinancingSource:
     NO_FINANCING = 'no financing'
     COLLEGE_BUDGET = 'college budget'
@@ -67,7 +68,6 @@ class FinancingSource:
     )
 
 
-
 class DocumentFlow(models.Model):
     name = models.CharField(max_length=30)
     flow_type = models.CharField(max_length=30, choices=FlowType.CHOICES)
@@ -76,10 +76,13 @@ class DocumentFlow(models.Model):
     state = models.PositiveIntegerField(default=0)
 
     def execute_flow(self, flow_function, *params):
-            flow_function(self, *params)
+        flow_function(self, *params)
 
     def documents_in_flow(self):
         return "\n".join([document.document_name + ", " for document in self.documents.all()])
+
+    def get_documents(self):
+        return self.documents.all()
 
     def __str__(self):
         return self.name + " by " + str(self.initiator)
@@ -165,6 +168,4 @@ class RectorDispositionDocument(Document):
     def save(self, *args, **kwargs):
         self.type = DocumentType.DR
         super(RectorDispositionDocument, self).save(*args, **kwargs)
-
-
 

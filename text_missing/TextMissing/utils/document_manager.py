@@ -8,9 +8,10 @@ from TextMissing.utils.xlsbuilder import XlsBuilder
 from text_missing import settings
 
 
-class  DocumentManager:
+class DocumentManager:
     def __init__(self):
         pass
+
     @staticmethod
     def __add_uploaded_document(document_name, author,abstract,keywords,status,file):
         instance = DocumentVersion()
@@ -46,6 +47,7 @@ class  DocumentManager:
 
         doc = NecessityRequestDocument()
         doc.status = status
+        doc.author = author
         doc.save()
         doc.versions.add(instance)
         doc.save()
@@ -101,14 +103,14 @@ class  DocumentManager:
         instance.save()
 
     @staticmethod
-    def __add_rector_disposition_document(document_name, author,abstract,keywords,status, context):
+    def __add_rector_disposition_document(document_name, author, abstract, keywords, status, context):
         instance = RectorDispositionDocument()
         instance.author = author
         DocumentManager.__create_instance_dr(instance, document_name,abstract,keywords,status,context)
         instance.save()
 
     @staticmethod
-    def __update_rector_disposition_document(idx,document_name,abstract,keywords,status, context):
+    def __update_rector_disposition_document(idx, document_name, abstract, keywords, status, context):
         instance = RectorDispositionDocument.objects.filter(id=idx).first()
         DocumentManager.__create_instance_dr(instance, document_name, abstract, keywords, status, context)
         instance.save()
@@ -117,10 +119,12 @@ class  DocumentManager:
     def __update_necessity_request_document(idx,document_name,abstract,keywords,status,user):
         doc_instance = NecessityRequestDocument.objects.filter(id=idx).first()
         doc_instance.status = status
+        doc_instance.save()
         instance = DocumentVersion()
         instance.document_name = document_name
         instance.abstract = abstract
         instance.keywords = keywords
+        instance.author = doc_instance.author
         xl = XlsBuilder()
         xl.set_content(user)
         xl.save()
@@ -134,22 +138,22 @@ class  DocumentManager:
         doc_instance.save()
 
     @staticmethod
-    def add_document(type, document_name, author, abstract, keywords, status,param = None):
-            switcher = {
-                DocumentType.UPLOADED: DocumentManager.__add_uploaded_document,
-                DocumentType.DR: DocumentManager.__add_rector_disposition_document,
-                DocumentType.RN: DocumentManager.__add_necessity_request_document
-            }
-            switcher[type](document_name,author,abstract,keywords,status,param)
+    def add_document(type, document_name, author, abstract, keywords, status, param=None):
+        switcher = {
+            DocumentType.UPLOADED: DocumentManager.__add_uploaded_document,
+            DocumentType.DR: DocumentManager.__add_rector_disposition_document,
+            DocumentType.RN: DocumentManager.__add_necessity_request_document
+        }
+        switcher[type](document_name, author, abstract, keywords, status, param)
 
     @staticmethod
-    def update_document(idx,type,document_name,abstract,keywords,status, param):
+    def update_document(idx, document_type, document_name, abstract, keywords, status, param):
         switcher = {
             DocumentType.UPLOADED: DocumentManager.__update_uploaded_document,
             DocumentType.DR: DocumentManager.__update_rector_disposition_document,
             DocumentType.RN: DocumentManager.__update_necessity_request_document
         }
-        switcher[type](idx,document_name,abstract,keywords,status,param)
+        switcher[document_type](idx, document_name, abstract, keywords, status, param)
 
     @staticmethod
     def remove_document(idx):
@@ -165,9 +169,9 @@ class  DocumentManager:
     def make_doc(context):
         doc = DocxTemplate("templates/doc-templates/dr.docx")
         doc.render(context)
-        filePath = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(20))
-        doc.save(filePath)
-        return filePath
+        file_path = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(20))
+        doc.save(file_path)
+        return file_path
 
 
 def set_file_content(instance, name, path):

@@ -16,6 +16,8 @@ urlpatterns = [
     url(r'^zones/initiate_zone', views.initiate_zone, name='initiate_zones'),
     url(r'^zones/task_zone', views.task_zone, name='task_zones'),
     url(r'^zones/finished_zone', views.finished_zone, name='finished_zones'),
+    url(r'^flows/$',views.flows_page,name="flows"),
+    url(r'^add_flow/$', views.add_flow_page, name="add_flow"),
     url(r'^media/(?P<path>.*)$', serve, {
         'document_root': settings.MEDIA_ROOT,
     }),
