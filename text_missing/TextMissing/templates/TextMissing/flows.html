@@ -9,10 +9,12 @@
     </a>
     {% for flow in flows %}
         <div class="flow">
-            <h1>{{ flow.name }}</h1>
-            <h3 style="margin-left: auto">{{ flow.flow_type }}</h3>
-            {% for doc in flow.get_documents %}
-                {% include "TextMissing/document.html" with document=doc %}
+            <h2 style="margin:0;">{{ flow.name }}</h2>
+            <h3 style="margin:0;">{{ flow.flow_type }}</h3>
+            {% for document in flow.get_documents %}
+                <div>
+                    <a href={{ document.get_file_url }}> {{ document.get_file_name }} </a>
+                </div>
             {% endfor %}
         </div>
     {% endfor %}

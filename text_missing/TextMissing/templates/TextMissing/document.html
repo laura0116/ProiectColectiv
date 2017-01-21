@@ -1,9 +1,8 @@
-{% load static %}
-<link rel="stylesheet" type="text/css" href={% static "TextMissing/document.css" %}>
 
 <div class="document-container">
     <div class="metadata-name">
         {% if document.status != "blocked" and is_manager_or_contributor %}
+            {
             <a href="{% url "TextMissing:delete_document" document_id=document.id %}">
                 <span class="delete-button glyphicon glyphicon-remove pull-left"></span>
             </a>

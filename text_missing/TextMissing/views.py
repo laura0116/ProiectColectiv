@@ -173,4 +173,5 @@ def add_flow_page(request):
             return redirect('TextMissing:flows')
     else:
         form = AddFlowForm(user=current_user)
-    return render(request, 'TextMissing/add-flow.html', {'form': form, "has_permission": True})
+    return render(request, 'TextMissing/add-flow.html', {
+'form': form, "has_permission": True})
