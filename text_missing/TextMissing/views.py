@@ -25,7 +25,8 @@ def documents_page(request):
     if request.user.is_staff:
         return redirect('admin:index')
     return render(request, "TextMissing/documents.html",
-                  {'documents': Document.objects.all(), "document_types": DocumentType, "has_permission": True})
+                  {'documents': Document.objects.all(), "document_types": DocumentType, "has_permission": True,
+                   "is_manager_or_contributor": is_manager_or_contributor(request.user) })
 
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
@@ -50,6 +51,7 @@ def add_document(request, document_type):
     }
     return upload_form(request, options[document_type])
 
+
 def update_form(request, document_id, update_form_class):
     current_user = Client.objects.filter(user=request.user).first()
     current_document = Document.objects.filter(id=document_id).first()
@@ -63,7 +65,9 @@ def update_form(request, document_id, update_form_class):
     return render(request, 'TextMissing/upload_document.html', {
         'form': form
     })
-@user_passes_test(is_manager_or_contributor,login_url=reverse_lazy('LoginApp:login'))
+
+
+@user_passes_test(is_manager_or_contributor, login_url=reverse_lazy('LoginApp:login'))
 def update_document(request, document_id):
     options = {
         DocumentType.UPLOADED: UpdateDocumentForm,
@@ -88,9 +92,11 @@ def upload_form(request, document_form_class):
         'form': form
     })
 
+
 @login_required(login_url=reverse_lazy('LoginApp:login'))
 def zones(request):
     return render(request, 'TextMissing/zones.html')
+
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
 def work_zone(request):
@@ -119,10 +125,10 @@ def initiate_zone(request):
                if file.author == current_user:
                     documents.append(file)
         return render(request, "TextMissing/initiate_zone.html",
-                  {'documents': documents, "has_permission": True})\
+                  {'documents': documents, "has_permission": True})
+
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
-
 def task_zone(request):
     files = Document.objects.all()
     current_user = Client.objects.filter(user=request.user).first()
@@ -134,6 +140,7 @@ def task_zone(request):
                     documents.append(file)
         return render(request, "TextMissing/task_zone.html",
                   {'documents': documents, "has_permission": True})
+
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
 def finished_zone(request):
