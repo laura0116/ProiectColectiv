@@ -1,6 +1,6 @@
 import os
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.forms import model_to_dict
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, render_to_response
