@@ -231,10 +231,17 @@ class AddFlowForm(ModelForm):
                                                        choices=self.choices, label="Documents:")
 
     def clean(self):
-        for document_id in self.cleaned_data['documents']:
-            document = Document.objects.filter(id=int(document_id)).first()
-            if document.type != self.cleaned_data['flow_type']:
-                raise forms.ValidationError("Validate")
+        just_one = False
+        if 'documents' in self.cleaned_data.keys():
+            for document_id in self.cleaned_data['documents']:
+                document = Document.objects.filter(id=int(document_id)).first()
+                if document.type == self.cleaned_data['flow_type']:
+                    if not just_one:
+                        just_one = True
+                    else:
+                        break
+        if not just_one:
+            raise forms.ValidationError('You must choose exactly one ' + self.cleaned_data['flow_type'] + ' document')
 
     def save(self, **kwargs):
         instance = DocumentFlow()
@@ -242,7 +249,6 @@ class AddFlowForm(ModelForm):
         instance.flow_type = self.cleaned_data['flow_type']
         instance.initiator = self.user
         instance.save()
-        print(self.cleaned_data['documents'])
         for document_id in self.cleaned_data['documents']:
             document = Document.objects.filter(id=int(document_id)).first()
             document.flow = instance
