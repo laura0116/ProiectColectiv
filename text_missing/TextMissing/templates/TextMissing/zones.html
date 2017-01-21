@@ -5,9 +5,11 @@
 <form method="get" action="work_zone.html">
     <button type="submit">Work Zone</button>
 </form>
+    {% if user.type.is_manager_or_contributor %}
     <form method="get" action="initiate_zone.html">
     <button type="submit">Initiated Tasks Zone</button>
 </form>
+    {% endif %}
     <form method="get" action="task_zone.html">
     <button type="submit">Tasks Zone</button>
 </form>

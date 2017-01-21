@@ -1,6 +1,6 @@
 import os
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.forms import model_to_dict
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, render_to_response
@@ -15,6 +15,7 @@ from TextMissing.forms import AddDocumentForm, RectorDispositionForm, NecessityR
     UpdateNecessityRequest
 from TextMissing.forms import AddDocumentForm, UpdateDocumentForm
 from TextMissing.models import Document, DocumentType
+from TextMissing.utils.check_user import is_manager, is_contributor, is_manager_or_contributor
 from text_missing import settings
 
 
@@ -27,6 +28,7 @@ def documents_page(request):
 
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
+@user_passes_test(is_manager_or_contributor,login_url=reverse_lazy('LoginApp:login'))
 def delete_document(request, document_id):
     print(request.method)
     if request.method == "GET":
@@ -37,6 +39,7 @@ def delete_document(request, document_id):
 
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
+@user_passes_test(is_manager_or_contributor,login_url=reverse_lazy('LoginApp:login'))
 def add_document(request, document_type):
     options = {
         DocumentType.UPLOADED: AddDocumentForm,
@@ -44,7 +47,6 @@ def add_document(request, document_type):
         DocumentType.RN: NecessityRequestForm
     }
     return upload_form(request, options[document_type])
-
 
 def update_form(request, document_id, update_form_class):
     current_user = Client.objects.filter(user=request.user).first()
@@ -59,8 +61,7 @@ def update_form(request, document_id, update_form_class):
     return render(request, 'TextMissing/upload_document.html', {
         'form': form
     })
-
-
+@user_passes_test(is_manager_or_contributor,login_url=reverse_lazy('LoginApp:login'))
 def update_document(request, document_id):
     options = {
         DocumentType.UPLOADED: UpdateDocumentForm,
@@ -119,6 +120,7 @@ def initiate_zone(request):
                   {'documents': documents, "has_permission": True})\
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
+
 def task_zone(request):
     files = Document.objects.all()
     current_user = Client.objects.filter(user=request.user).first()
