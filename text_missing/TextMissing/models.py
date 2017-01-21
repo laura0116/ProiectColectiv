@@ -29,6 +29,32 @@ class DocumentType:
     )
 
 
+class FlowType:
+    RECTOR_DISPOSITION = 'rector disposition'
+    NECESSITY_REQUEST = 'necessity request'
+    CHOICES = (
+        (RECTOR_DISPOSITION, 'Rector Disposition'),
+        (NECESSITY_REQUEST, "Necessity Request"),
+    )
+
+
+class DocumentFlow(models.Model):
+    name = models.CharField(max_length=30)
+    flow_type = models.CharField(max_length=30, choices=FlowType.CHOICES)
+    initiator = models.ForeignKey(Client, null=False, default=0)
+    creation_date = models.DateField(auto_now_add=True)
+    state = models.PositiveIntegerField(default=0)
+
+    def execute_flow(self, flow_function, *params):
+            flow_function(self, *params)
+
+    def documents_in_flow(self):
+        return "\n".join([document.document_name + ", " for document in self.documents.all()])
+
+    def __str__(self):
+        return self.name + " by " + str(self.initiator)
+
+
 class Document(models.Model):
     document_name = models.CharField(max_length=64)
     author = models.ForeignKey(Client, null=False, default=1)
@@ -41,6 +67,7 @@ class Document(models.Model):
     status = models.CharField(max_length=20, choices=StatusChoices.CHOICES)
     file = models.FileField(upload_to='documents/%Y%m%d', null=True, blank=True)
     type = models.CharField(max_length=20, choices=DocumentType.CHOICES, default=DocumentType.UPLOADED)
+    flow = models.ForeignKey(DocumentFlow, related_name="documents", null=True, default=None)
 
     def get_file_url(self):
         if self.file:
