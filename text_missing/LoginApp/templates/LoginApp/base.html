@@ -3,6 +3,9 @@
 <html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
 <title>{% block title %}{% endblock %}</title>
+{% load static %}
+<link rel="stylesheet" type="text/css" href={% static "TextMissing/document.css" %}>
+<link rel="stylesheet" type="text/css" href={% static "TextMissing/flows.css" %}>
 <link rel="stylesheet" type="text/css" href="{% static "bootstrap/css/bootstrap.min.css" %}" />
 <link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" />
 {% block extrastyle %}{% endblock %}
