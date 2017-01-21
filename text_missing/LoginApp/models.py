@@ -123,6 +123,7 @@ def pre_delete_client(sender, **kwargs):
     user.delete()
     is_in_pre_delete = False
 
+
 class UserGroup(models.Model):
     name = models.CharField(max_length=64)
     leader = models.ForeignKey(Client, null=False, default=1, related_name="Leader")

@@ -2,8 +2,6 @@ from time import sleep
 
 from datetime import datetime
 
-from TextMissing.utils.emailer import Emailer
-
 
 class RepeatedTaskRunner:
     @staticmethod

@@ -24,6 +24,7 @@ class StaffAdmin(admin.ModelAdmin):
     fields = ['first_name', 'last_name', 'email']
     list_display = ['get_user', 'last_name', 'first_name', 'email', 'is_activated', 'get_temp_pass']
 
+
 class UserGroupAdmin(admin.ModelAdmin):
     fields = ['name', 'leader', 'users']
     list_display = ['get_usergroup', 'get_leader', 'get_users']
