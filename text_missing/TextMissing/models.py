@@ -2,6 +2,8 @@ import math
 from django.db import models
 
 # Create your models here.
+from django_countries.fields import CountryField
+
 from LoginApp.models import Client
 
 
@@ -29,6 +31,19 @@ class DocumentType:
     )
 
 
+class TravelMean:
+    AUTO = "auto"
+    PLANE = "plane"
+    BOAT = "boat"
+    TRAIN = "train"
+    CHOICES = (
+        (AUTO, "Auto"),
+        (PLANE, "Plane"),
+        (BOAT, "Boat"),
+        (TRAIN, "Train")
+    )
+
+
 class FlowType:
     RECTOR_DISPOSITION = 'rector disposition'
     NECESSITY_REQUEST = 'necessity request'
@@ -36,6 +51,21 @@ class FlowType:
         (RECTOR_DISPOSITION, 'Rector Disposition'),
         (NECESSITY_REQUEST, "Necessity Request"),
     )
+
+class FinancingSource:
+    NO_FINANCING = 'no financing'
+    COLLEGE_BUDGET = 'college budget'
+    UNIVERSITY_BUDGET = 'university budget'
+    PROJECT_FINANCING = 'project/grant'
+    COMBINED_FINANCING = 'combined'
+    CHOICES = (
+        (NO_FINANCING, "No financing"),
+        (COLLEGE_BUDGET, "College budget"),
+        (UNIVERSITY_BUDGET, "University budget"),
+        (PROJECT_FINANCING, "Project/grant financing"),
+        (COMBINED_FINANCING, "Combined financing")
+    )
+
 
 
 class DocumentFlow(models.Model):
@@ -90,6 +120,14 @@ class NecessityRequestDocument(Document):
 
 
 class RectorDispositionDocument(Document):
+    phone_number = models.CharField(max_length=10, default=None)
+    country = CountryField(default=None)
+    city = models.CharField(max_length=20, default=None)
+    travel_mean = models.CharField(max_length=20, choices=TravelMean.CHOICES, default=TravelMean.AUTO)
+    travel_purpose = models.CharField(max_length=500, default=None)
+    sum = models.PositiveIntegerField(default=0)
+    sum_motivation = models.CharField(max_length=500, default=None)
+    financing_source = models.CharField(max_length=20, choices=FinancingSource.CHOICES, default=FinancingSource.NO_FINANCING)
     def save(self, *args, **kwargs):
         self.type = DocumentType.DR
         super(Document, self).save(*args, **kwargs)

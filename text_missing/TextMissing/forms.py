@@ -102,7 +102,10 @@ class NecessityRequestForm(ModelForm):
 class UpdateDocumentForm(ModelForm):
     class Meta:
         model = UploadedDocument
-        fields = ('document_name', 'abstract', 'keywords', 'status', 'file')
+        fields = ('document_name', 'abstract', 'keywords', 'status', 'file', 'phone_number',
+                  'country', 'city', 'travel_mean', 'travel_purpose', 'sum', 'sum_motivation', 'financing_source')
+
+
 
     def __init__(self, user, document_id, *args, **kwargs):
         super(UpdateDocumentForm, self).__init__(*args, **kwargs)
