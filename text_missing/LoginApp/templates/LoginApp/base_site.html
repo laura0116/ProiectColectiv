@@ -1,5 +1,6 @@
 {% extends "LoginApp/base.html" %}
-
+{% load i18n admin_static %}
+{% load staticfiles %}
 {% block title %}{{ site_title }}{% endblock %}
 
 {% block branding %}
@@ -8,8 +9,8 @@
 
 {% block nav-global %}
     {% if has_permission %}
-        <a href="{% url "TextMissing:documents" %}">Documents</a>
-        <a href="{% url "TextMissing:zones" %}">Zones</a>
-        <a href="{% url "TextMissing:flows" %}">Flows</a>
+        <a href="{% url "TextMissing:documents" %}" style="margin: 10px; font-size:15px ">Documents</a>
+        <a href="{% url "TextMissing:zones" %}"  style="margin: 10px; font-size: 15px" >Zones</a>
+        <a href="{% url "TextMissing:flows" %}"  style="margin: 10px; font-size: 15px">Flows</a>
     {% endif %}
 {% endblock %}

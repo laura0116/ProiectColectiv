@@ -1,7 +1,7 @@
 {% extends "LoginApp/base_site.html" %}
 {% load i18n %}
 {% block content %}
-    <p>Finished Tasks Zone</p>
+    <div class="text-center" style="font-size: 20px">Finished Tasks Zone</div>
     {% for doc in documents %}
             {% include "TextMissing/document.html" with document=doc %}
         {% endfor %}

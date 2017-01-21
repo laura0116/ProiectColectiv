@@ -97,8 +97,9 @@ def upload_form(request, document_form_class):
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
 def zones(request):
-    return render(request, 'TextMissing/zones.html', {"has_permission": True})
-
+    return render(request, 'TextMissing/zones.html',
+                  {'documents': Document.objects.all(), "document_types": DocumentType, "has_permission": True,
+                   "is_manager_or_contributor": is_manager_or_contributor(request.user)})
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
 def work_zone(request):
@@ -160,7 +161,7 @@ def finished_zone(request):
 def flows_page(request):
     flows = DocumentFlow.objects.all()
 
-    return render(request, "TextMissing/flows.html", {"flows": flows, "has_permission": True})
+    return render(request, "TextMissing/flows.html", {"flows": flows, "has_permission": True,"is_manager_or_contributor": is_manager_or_contributor(request.user)})
 
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
