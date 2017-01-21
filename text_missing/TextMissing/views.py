@@ -15,6 +15,7 @@ from TextMissing.forms import AddDocumentForm, RectorDispositionForm, NecessityR
     UpdateNecessityRequest
 from TextMissing.forms import AddDocumentForm, UpdateDocumentForm
 from TextMissing.models import Document, DocumentType
+from TextMissing.utils.document_manager import DocumentManager
 from text_missing import settings
 
 
@@ -30,9 +31,10 @@ def documents_page(request):
 def delete_document(request, document_id):
     print(request.method)
     if request.method == "GET":
-        files = Document.objects.filter(id=document_id)
-        os.remove(os.path.join(settings.MEDIA_ROOT, files.first().file.name))
-        files.delete()
+        # files = Document.objects.filter(id=document_id)
+        # os.remove(os.path.join(settings.MEDIA_ROOT, files.first().file.name))
+        # files.delete()
+        DocumentManager.remove_document(document_id)
     return redirect('TextMissing:documents')
 
 
