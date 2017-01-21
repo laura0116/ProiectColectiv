@@ -4,12 +4,13 @@ import random
 import string
 
 from django.core.files import File
-from django.forms import Form, CharField, IntegerField, DateField, FileField, ModelForm, forms
+from django.forms import Form, CharField, IntegerField, DateField, FileField, ModelForm, forms, MultipleChoiceField, \
+    CheckboxSelectMultiple
 from docxtpl import DocxTemplate
 import jinja2
 
 from TextMissing.models import StatusChoices, Document, UploadedDocument, RectorDispositionDocument, \
-    NecessityRequestDocument, DocumentType
+    NecessityRequestDocument, DocumentType, DocumentFlow
 from TextMissing.utils import document_manager
 from TextMissing.utils.document_manager import DocumentManager
 from TextMissing.utils.version_handler import VersionHandler
@@ -146,9 +147,36 @@ class UpdateNecessityRequest(ModelForm):
                                         {"UserName": str(self.user)})
 
 
+class AddFlowForm(ModelForm):
+    class Meta:
+        model = DocumentFlow
+        fields = ("name", "flow_type")
+    def __init__(self,user,*args,**kwargs):
+        super(AddFlowForm, self).__init__(*args, **kwargs)
+        documents= Document.objects.filter(status=StatusChoices.FINAL)
+        self.choices = []
+        self.user = user
+        for document in documents:
+            self.choices.append((document.id,document.document_name))
+
+        self.fields['documents'] = MultipleChoiceField(widget=CheckboxSelectMultiple,
+                                                   choices=self.choices, label="Documents:")
+
+    def save(self):
+        instance = DocumentFlow()
+        instance.name = self.cleaned_data['name']
+        instance.flow_type = self.cleaned_data['flow_type']
+        instance.initiator = self.user
+        instance.save()
+        print(self.cleaned_data['documents'])
+        for document_id in self.cleaned_data['documents']:
+            document = Document.objects.filter(id=int(document_id)).first()
+            document.flow = instance
+            document.save()
 
 
 def set_file_content(instance, name, path):
     with open(path, 'rb') as f:
         instance.file.save(name, f, save=False)
     os.remove(path)
+

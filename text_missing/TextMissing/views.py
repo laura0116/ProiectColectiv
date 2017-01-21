@@ -12,9 +12,9 @@ from django.urls import reverse_lazy
 
 from LoginApp.models import Client
 from TextMissing.forms import AddDocumentForm, RectorDispositionForm, NecessityRequestForm, UpdateRectorDisposition, \
-    UpdateNecessityRequest
+    UpdateNecessityRequest, AddFlowForm
 from TextMissing.forms import AddDocumentForm, UpdateDocumentForm
-from TextMissing.models import Document, DocumentType
+from TextMissing.models import Document, DocumentType, DocumentFlow
 from TextMissing.utils.check_user import is_manager, is_contributor, is_manager_or_contributor
 from TextMissing.utils.document_manager import DocumentManager
 from text_missing import settings
@@ -152,3 +152,26 @@ def finished_zone(request):
                 documents.append(file)
         return render(request, "TextMissing/task_zone.html",
                   {'documents': documents, "has_permission": True})
+
+
+
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+def flows_page(request):
+    flows = DocumentFlow.objects.all()
+
+    return render(request, "TextMissing/flows.html", {"flows": flows })
+
+
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+def add_flow_page(request):
+    current_user = Client.objects.filter(user=request.user).first()
+    if request.method == 'POST':
+        form = AddFlowForm(current_user, request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('TextMissing:flows')
+    else:
+        form = AddFlowForm(user=current_user)
+    return render(request, 'TextMissing/add-flow.html', {
+        'form': form
+    })
