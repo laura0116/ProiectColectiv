@@ -1,0 +1,27 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href={% static "TextMissing/document.css" %}>
+
+<div class="document-container">
+    <div class="metadata-container">
+        <div class="metadata-title">
+            <div>Name</div>
+            <div>Version</div>
+            <div>Author</div>
+            <div>Created on</div>
+            <div>Last Updated</div>
+            <div>Abstract</div>
+            <div>File</div>
+            <div>Size</div>
+        </div>
+        <div class="metadata-content">
+            <div>{{ document.document_name }}</div>
+            <div>{{ document.version }}</div>
+            <div>{{ document.author }}</div>
+            <div>{{ document.creation_date   }}</div>
+            <div>{{ document.last_update }}</div>
+            <div>{{ document.abstract }}</div>
+            <div><a href={{ document.get_file_url }}> {{ document.get_file_name }} </a></div>
+            <div>{{ document.size|floatformat:2 }} MB</div>
+        </div>
+    </div>
+</div>

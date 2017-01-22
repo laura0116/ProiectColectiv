@@ -97,10 +97,42 @@ class Document(models.Model):
     last_update = models.DateField(auto_now=True)
     abstract = models.CharField(max_length=100)
     keywords = models.CharField(max_length=100)
-    status = models.CharField(max_length=20, choices=StatusChoices.CHOICES)
     file = models.FileField(upload_to='documents/%Y%m%d', null=True, blank=True)
+    status = models.CharField(max_length=20, choices=StatusChoices.CHOICES)
     type = models.CharField(max_length=20, choices=DocumentType.CHOICES, default=DocumentType.UPLOADED)
     flow = models.ForeignKey(DocumentFlow, related_name="documents", null=True, default=None)
+
+    def get_file_url(self):
+        if self.file:
+            return '/media/' + str(self.file)
+
+    def get_file_name(self):
+        return str(self.file).split("/")[-1]
+
+    def save(self, *args, **kwargs):
+        if len(self.versions.all()) > 0:
+            self.document_name = self.versions.last().document_name
+            self.author = self.versions.last().author
+            self.size = self.versions.last().size
+            self.version = self.versions.last().version
+            self.creation_date = self.versions.last().creation_date
+            self.last_update = self.versions.last().last_update
+            self.abstract = self.versions.last().abstract
+            self.keywords = self.versions.last().keywords
+            self.file = self.versions.last().file
+        super(Document, self).save(*args, **kwargs)
+
+class DocumentVersion(models.Model):
+    document_name = models.CharField(max_length=64)
+    author = models.ForeignKey(Client, null=False, default=1)
+    size = models.FloatField(default=0)
+    version = models.CharField(max_length=64, default=0.1)
+    creation_date = models.DateField(auto_now_add=True)
+    last_update = models.DateField(auto_now=True)
+    abstract = models.CharField(max_length=100)
+    keywords = models.CharField(max_length=100)
+    file = models.FileField(upload_to='documents/%Y%m%d', null=True, blank=True)
+    document = models.ForeignKey(Document, null=True, related_name="versions")
 
     def get_file_url(self):
         if self.file:
@@ -113,13 +145,13 @@ class Document(models.Model):
 class UploadedDocument(Document):
     def save(self, *args, **kwargs):
         self.type = DocumentType.UPLOADED
-        super(Document, self).save(*args, **kwargs)
+        super(UploadedDocument, self).save(*args, **kwargs)
 
 
 class NecessityRequestDocument(Document):
     def save(self, *args, **kwargs):
         self.type = DocumentType.RN
-        super(Document, self).save(*args, **kwargs)
+        super(NecessityRequestDocument, self).save(*args, **kwargs)
 
 
 class RectorDispositionDocument(Document):
@@ -135,4 +167,5 @@ class RectorDispositionDocument(Document):
 
     def save(self, *args, **kwargs):
         self.type = DocumentType.DR
-        super(Document, self).save(*args, **kwargs)
+        super(RectorDispositionDocument, self).save(*args, **kwargs)
+

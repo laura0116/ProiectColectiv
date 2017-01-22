@@ -239,6 +239,7 @@ class AddFlowForm(ModelForm):
                     if not just_one:
                         just_one = True
                     else:
+                        just_one = False
                         break
         if not just_one:
             raise forms.ValidationError('You must choose exactly one ' + self.cleaned_data['flow_type'] + ' document')

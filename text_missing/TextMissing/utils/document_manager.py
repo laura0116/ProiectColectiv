@@ -2,7 +2,7 @@ import os
 
 from TextMissing.forms import *
 from TextMissing.models import StatusChoices, Document, UploadedDocument, RectorDispositionDocument, \
-    NecessityRequestDocument, DocumentType
+    NecessityRequestDocument, DocumentType, DocumentVersion
 from TextMissing.utils.version_handler import VersionHandler
 from TextMissing.utils.xlsbuilder import XlsBuilder
 from text_missing import settings
@@ -13,26 +13,30 @@ class DocumentManager:
         pass
 
     @staticmethod
-    def __add_uploaded_document(document_name, author, abstract, keywords, status, file):
-        instance = UploadedDocument()
+    def __add_uploaded_document(document_name, author,abstract,keywords,status,file):
+        instance = DocumentVersion()
         instance.document_name = document_name
         instance.author = author
         instance.abstract = abstract
         instance.keywords = keywords
-        instance.status = status
         instance.file = file
         instance.save()
         instance.size = instance.file.size / (1024.0 * 1024)
         instance.save()
 
+        doc = UploadedDocument()
+        doc.status = status
+        doc.save()
+        doc.versions.add(instance)
+        doc.save()
+
     @staticmethod
-    def __add_necessity_request_document(document_name, author, abstract, keywords, status, user):
-        instance = NecessityRequestDocument()
+    def __add_necessity_request_document(document_name, author,abstract,keywords,status,user):
+        instance = DocumentVersion()
         instance.document_name = document_name
         instance.author = author
         instance.abstract = abstract
         instance.keywords = keywords
-        instance.status = status
         xl = XlsBuilder()
         xl.set_content(user)
         xl.save()
@@ -41,26 +45,43 @@ class DocumentManager:
         instance.size = instance.file.size / (1024.0 * 1024)
         instance.save()
 
+        doc = NecessityRequestDocument()
+        doc.status = status
+        doc.author = author
+        doc.save()
+        doc.versions.add(instance)
+        doc.save()
+
     @staticmethod
-    def __update_uploaded_document(idx, document_name, abstract, keywords, status, file):
-        instance = UploadedDocument.objects.filter(id=idx).first()
+    def __update_uploaded_document(idx,document_name,abstract,keywords,status,file):
+        docInstance = UploadedDocument.objects.filter(id=idx).first()
+        docInstance.status = status
+
+        instance = DocumentVersion()
         instance.document_name = document_name
         instance.abstract = abstract
         instance.keywords = keywords
-        instance.status = status
-        new_file = file
-        if new_file and new_file != instance.file:
-            instance.file = new_file
-        instance.version = VersionHandler.upgradeVersion(instance)
+        if file:
+            instance.file = file
+        else:
+            instance.file = docInstance.file
+        instance.author = docInstance.author
+        instance.version = VersionHandler.upgradeVersion(docInstance)
         instance.save()
         instance.size = instance.file.size / (1024.0 * 1024)
         instance.save()
+        docInstance.save()
+        docInstance.versions.add(instance)
+        docInstance.save()
 
     @staticmethod
-    def __create_instance_dr(instance, document_name, abstract, keywords, status, context):
-        instance.document_name = document_name
-        instance.abstract = abstract
-        instance.keywords = keywords
+    def __create_instance_dr(instance, document_name,abstract,keywords,status,context):
+        ver_instance = DocumentVersion()
+        ver_instance.document_name = document_name
+        ver_instance.abstract = abstract
+        ver_instance.keywords = keywords
+        ver_instance.author = instance.author
+        ver_instance.save()
         instance.status = status
         instance.city = context['city']
         instance.sum = context['cost']
@@ -71,40 +92,50 @@ class DocumentManager:
         instance.sum_motivation = context['sum_motivation']
         instance.financing_source = context['financing_source']
         instance.save()
-        set_file_content(instance, instance.document_name + ".docx", DocumentManager.make_doc(context))
+        set_file_content(ver_instance, ver_instance.document_name + ".docx", DocumentManager.make_doc(context))
 
-        instance.save()
-        instance.size = instance.file.size / (1024.0 * 1024)
+        ver_instance.save()
+        ver_instance.size = ver_instance.file.size / (1024.0 * 1024)
+        if len(instance.versions.all()) != 0:
+            ver_instance.version = VersionHandler.upgradeVersion(instance)
+        ver_instance.save()
+        instance.versions.add(ver_instance)
         instance.save()
 
     @staticmethod
     def __add_rector_disposition_document(document_name, author, abstract, keywords, status, context):
         instance = RectorDispositionDocument()
         instance.author = author
-        DocumentManager.__create_instance_dr(instance, document_name, abstract, keywords, status, context)
+        DocumentManager.__create_instance_dr(instance, document_name,abstract,keywords,status,context)
+        instance.save()
 
     @staticmethod
     def __update_rector_disposition_document(idx, document_name, abstract, keywords, status, context):
         instance = RectorDispositionDocument.objects.filter(id=idx).first()
         DocumentManager.__create_instance_dr(instance, document_name, abstract, keywords, status, context)
-        instance.version = VersionHandler.upgradeVersion(instance)
         instance.save()
 
     @staticmethod
-    def __update_necessity_request_document(idx, document_name, abstract, keywords, status, user):
-        instance = NecessityRequestDocument.objects.filter(id=idx).first()
+    def __update_necessity_request_document(idx,document_name,abstract,keywords,status,user):
+        doc_instance = NecessityRequestDocument.objects.filter(id=idx).first()
+        doc_instance.status = status
+        doc_instance.save()
+        instance = DocumentVersion()
         instance.document_name = document_name
         instance.abstract = abstract
         instance.keywords = keywords
-        instance.status = status
+        instance.author = doc_instance.author
         xl = XlsBuilder()
         xl.set_content(user)
         xl.save()
         set_file_content(instance, instance.document_name + ".xlsx", xl.file_name)
         instance.save()
         instance.size = instance.file.size / (1024.0 * 1024)
-        instance.version = VersionHandler.upgradeVersion(instance)
+        instance.version = VersionHandler.upgradeVersion(doc_instance)
         instance.save()
+        doc_instance.save()
+        doc_instance.versions.add(instance)
+        doc_instance.save()
 
     @staticmethod
     def add_document(type, document_name, author, abstract, keywords, status, param=None):
@@ -126,9 +157,13 @@ class DocumentManager:
 
     @staticmethod
     def remove_document(idx):
-        files = Document.objects.filter(id=idx)
-        os.remove(os.path.join(settings.MEDIA_ROOT, files.first().file.name))
-        files.delete()
+        file = Document.objects.filter(id=idx).first()
+        for ver in file.versions.all():
+            filepath = os.path.join(settings.MEDIA_ROOT, ver.file.name)
+            if os.path.isfile(filepath):
+                os.remove(filepath)
+        file.versions.all().delete()
+        file.delete()
 
     @staticmethod
     def make_doc(context):

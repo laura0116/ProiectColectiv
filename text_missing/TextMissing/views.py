@@ -154,7 +154,15 @@ def finished_zone(request):
             if file.status == 'blocked':
                 documents.append(file)
         return render(request, "TextMissing/task_zone.html",
-                      {'documents': documents, "has_permission": True})
+                  {'documents': documents, "has_permission": True})
+
+
+@login_required(login_url=reverse_lazy('LoginApp:login'))
+def view_versions(request, document_id):
+    doc = Document.objects.filter(id=document_id).first()
+    return render(request, "TextMissing/version_list.html",
+                  {'documents': doc.versions.all(), "has_permission": True,
+                   "is_manager_or_contributor": is_manager_or_contributor(request.user) })
 
 
 @login_required(login_url=reverse_lazy('LoginApp:login'))
@@ -174,5 +182,4 @@ def add_flow_page(request):
             return redirect('TextMissing:flows')
     else:
         form = AddFlowForm(user=current_user)
-    return render(request, 'TextMissing/add-flow.html', {
-'form': form, "has_permission": True})
+    return render(request, 'TextMissing/add-flow.html', {'form': form, "has_permission": True})

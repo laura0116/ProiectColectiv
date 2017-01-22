@@ -1,0 +1,12 @@
+{% extends "LoginApp/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block content_title %}<h1>{{ title }}</h1>{% endblock %}
+{% block content %}
+    <div style="display: flex; flex-direction: column">
+        {% for doc in documents %}
+            {% include "TextMissing/document_version.html" with document=doc %}
+        {% endfor %}
+    </div>
+{% endblock %}

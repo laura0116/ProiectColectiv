@@ -16,5 +16,5 @@ class DocumentFlowAdmin(admin.ModelAdmin):
     fields = ['name', 'flow_type', 'initiator', 'state']
     list_display = ['name', 'flow_type', 'initiator', 'state', 'documents_in_flow']
 
-admin.site.register(Document, DocumentAdmin)
+#admin.site.register(Document, DocumentAdmin)
 admin.site.register(DocumentFlow, DocumentFlowAdmin)
