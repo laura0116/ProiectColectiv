@@ -8,8 +8,8 @@
 
 {% block nav-global %}
     {% if has_permission %}
-        <a href="{% url "TextMissing:documents" %}">Documents</a>
-        <a href="{% url "TextMissing:zones" %}">Zones</a>
-        <a href="{% url "TextMissing:flows" %}">Flows</a>
+        <a class="header-link" href="{% url "TextMissing:documents" %}">Documents</a>
+        <a class="header-link" href="{% url "TextMissing:zones" %}">Zones</a>
+        <a class="header-link" href="{% url "TextMissing:flows" %}">Flows</a>
     {% endif %}
 {% endblock %}
