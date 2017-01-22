@@ -16,3 +16,13 @@
     text-decoration: none;
     color: #f5dd5d;
 }
+
+form label {
+    width: 120px;
+    float: left;
+}
+
+form ul li {
+    list-style-type: none;
+}
+
