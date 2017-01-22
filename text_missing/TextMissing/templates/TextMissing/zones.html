@@ -1,21 +1,21 @@
 {% extends "LoginApp/base_site.html" %}
 {% load i18n %}
-{% block content %}
-<div class="container" >
-<form method="get" action="work_zone.html">
-    <button type="submit">Work Zone</button>
-</form>
-    {% if user.type.is_manager_or_contributor %}
-    <form method="get" action="initiate_zone.html">
-    <button type="submit">Initiated Tasks Zone</button>
-</form>
-    {% endif %}
-    <form method="get" action="task_zone.html">
-    <button type="submit">Tasks Zone</button>
-</form>
-    <form method="get" action="finished_zone.html">
-    <button type="submit">Finished Tasks Zone</button>
-</form>
-</div>
 
+{% block title %}{{ title }}{% endblock %}
+{% block content_title %}<h1>{{ title }}</h1>{% endblock %}
+{% block content %}
+    <a href="{% url "TextMissing:work_zone" %}">
+        <button class="generic-button">Work Zone</button>
+    </a>
+    {% if is_manager_or_contributor %}
+        <a href="{% url "TextMissing:initiated_zone" %}">
+        <button class="generic-button">Initiated Tasks Zone</button>
+    </a>
+    {% endif %}
+    <a href="{% url "TextMissing:task_zone" %}">
+        <button class="generic-button">Tasks Zone</button>
+    </a>
+    <a href="{% url "TextMissing:finished_zone" %}">
+        <button class="generic-button">Finished Tasks Zone</button>
+    </a>
 {% endblock %}
