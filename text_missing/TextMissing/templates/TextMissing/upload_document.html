@@ -4,8 +4,10 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
+        <div>
         <label></label>
         <input type="submit" value="Upload">
+        </div>
     </form>
 {% endblock %}
 
