@@ -4,21 +4,18 @@
 {% block title %}{{ title }}{% endblock %}
 {% block content_title %}<h1>{{ title }}</h1>{% endblock %}
 {% block content %}
-
-<form method="get" action="work_zone.html">
-    <button class="generic-button">Work Zone</button>
-</form>
+    <a href="{% url "TextMissing:work_zone" %}">
+        <button class="generic-button">Work Zone</button>
+    </a>
     {% if is_manager_or_contributor %}
-    <form method="get" action="initiate_zone.html">
-    <button class="generic-button">Initiated Tasks Zone</button>
-    </form>
-{% endif %}
-    <form method="get" action="task_zone.html">
-    <button class="generic-button">Tasks Zone</button>
-</form>
-    <form method="get" action="finished_zone.html">
-    <button class="generic-button">Finished Tasks Zone</button>
-</form>
-
-
+        <a href="{% url "TextMissing:initiated_zone" %}">
+        <button class="generic-button">Initiated Tasks Zone</button>
+    </a>
+    {% endif %}
+    <a href="{% url "TextMissing:task_zone" %}">
+        <button class="generic-button">Tasks Zone</button>
+    </a>
+    <a href="{% url "TextMissing:finished_zone" %}">
+        <button class="generic-button">Finished Tasks Zone</button>
+    </a>
 {% endblock %}
